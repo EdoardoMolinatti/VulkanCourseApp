@@ -1,5 +1,6 @@
 #pragma once
 
+// Main graphics libraries (Vulkan, GLFW)
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
 
@@ -9,6 +10,7 @@
 #include <stdexcept>
 #include <vector>
 
+// Project includes
 #include "VulkanValidation.h"
 #include "Utilities.h"
 
@@ -35,8 +37,8 @@ private:
     }                           m_mainDevice;
     VkQueue                     m_graphicsQueue = nullptr;
     VkQueue                     m_presentationQueue = nullptr;
-    VkSurfaceKHR                m_surface = nullptr;
-    VkSwapchainKHR              m_swapChain = nullptr;
+    VkSurfaceKHR                m_surface = 0;      // '0' instead of 'nullptr' for compatibility with 32bit version
+    VkSwapchainKHR              m_swapChain = 0;    // '0' instead of 'nullptr' for compatibility with 32bit version
     std::vector<SwapchainImage> m_swapchainImages;
 
     // Disable warning about Vulkan unscoped enums for this entire file
