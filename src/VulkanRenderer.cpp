@@ -1,26 +1,22 @@
 #include "VulkanRenderer.h"
 
-// C++ STL
-#include <iostream>
-
-#include "VulkanValidation.h"
-
 // Disable warning about Vulkan unscoped enums for this entire file
 #pragma warning( push )
 #pragma warning(disable : 26812) // The enum type * is unscoped. Prefer 'enum class' over 'enum'.
 
-
+////////////
+// Public //
+////////////
+//------------------------------------------------------------------------------
 VulkanRenderer::VulkanRenderer()
 {
 }
-
+//------------------------------------------------------------------------------
 VulkanRenderer::~VulkanRenderer()
 {
 }
-
-//////////////////////////////
-// API
-//////////////////////////////
+//------------------------------------------------------------------------------
+// API //
 //------------------------------------------------------------------------------
 int VulkanRenderer::init(GLFWwindow* newWindow)
 {
@@ -29,11 +25,11 @@ int VulkanRenderer::init(GLFWwindow* newWindow)
     try
     {
         createInstance();
-        setupDebugMessenger();
+        createDebugMessenger();
         createSurface();
         getPhysicalDevice();
         createLogicalDevice();
-        createSwapChain();
+        createSwapchain();
     }
     catch (const std::runtime_error &e)
     {
@@ -57,43 +53,42 @@ void VulkanRenderer::cleanup()
 
     vkDestroyDevice(m_mainDevice.logicalDevice, nullptr);
 
-    if (g_enableValidationLayers) {
+    if (g_validationEnabled) {
         VulkanValidation::destroyDebugUtilsMessengerEXT(m_pInstance, m_debugMessenger, nullptr);
     }
 
     vkDestroyInstance(m_pInstance, nullptr);
 }
 
-
-// Private
+/////////////
+// Private //
+/////////////
 //------------------------------------------------------------------------------
 void VulkanRenderer::createInstance()
 {
-    if (g_enableValidationLayers) {
-        if (!checkValidationLayerSupport()) {
-            throw std::runtime_error("Validation Layers requested, but at least one is not available!");
-        }
+    if (g_validationEnabled && !checkValidationLayerSupport())
+    {
+        throw std::runtime_error("Validation Layers requested, but at least one is not available!");
     }
 
-    // Information about the whole application (developer's convenience)
+    // Information about the application itself
+    // Most data here doesn't affect the program and is for developer convenience
     VkApplicationInfo appInfo = {};
     appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
-    appInfo.pApplicationName = "Vulkan Course App";        // Custom name of the application
-    appInfo.apiVersion = VK_MAKE_VERSION(0, 0, 1);        // Custome version of the application
-    appInfo.pEngineName = "No Engine";                    // Custom engine name
-    appInfo.engineVersion = VK_MAKE_VERSION(1, 0, 0);    // Custom engine version
-    appInfo.apiVersion = VK_API_VERSION_1_1;            // The Vulkan version
+    appInfo.pApplicationName = "Vulkan App";            // Custom name of the application
+    appInfo.apiVersion = VK_MAKE_VERSION(0, 0, 1);      // Custom version of the application
+    appInfo.pEngineName = "No Engine";                  // Custom engine name
+    appInfo.engineVersion = VK_MAKE_VERSION(1, 0, 0);   // Custom engine version
+    appInfo.apiVersion = VK_API_VERSION_1_1;            // The Vulkan Version
 
     // Creation Information structure for a VkInstance (Vulkan Instance)
     VkInstanceCreateInfo createInfo = {};
     createInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
-    //createInfo.pNext = nullptr;
-    //createInfo.flags = VK_...
     createInfo.pApplicationInfo = &appInfo;
 
     // Optional Validation Layers
     VkDebugUtilsMessengerCreateInfoEXT debugCreateInfo; // This structure must be alive (not destroyed) when calling vkCreateInstance()
-    if (g_enableValidationLayers)
+    if (g_validationEnabled)
     {
         createInfo.enabledLayerCount = static_cast<uint32_t>(g_validationLayers.size());
         createInfo.ppEnabledLayerNames = g_validationLayers.data();
@@ -124,9 +119,22 @@ void VulkanRenderer::createInstance()
     }
 }
 //------------------------------------------------------------------------------
+void VulkanRenderer::createDebugMessenger()
+{
+    // Only create callback if validation enabled
+    if (!g_validationEnabled) return;
+
+    VkDebugUtilsMessengerCreateInfoEXT createInfo{};
+    VulkanValidation::populateDebugMessengerCreateInfo(createInfo);
+
+    if (VulkanValidation::createDebugUtilsMessengerEXT(m_pInstance, &createInfo, nullptr, &m_debugMessenger) != VK_SUCCESS) {
+        throw std::runtime_error("Failed to set up Debug messenger!");
+    }
+}
+//------------------------------------------------------------------------------
 void VulkanRenderer::createLogicalDevice()
 {
-    // Get queue family indices from the chosen Physical Device
+    // Get the queue family indices from the chosen Physical Device
     QueueFamilyIndices indices = getQueueFamilies(m_mainDevice.physicalDevice);
 
     // Vector for queue creation information and set for family indices
@@ -149,14 +157,13 @@ void VulkanRenderer::createLogicalDevice()
     // Information to create logical device (sometimes called just "device")
     VkDeviceCreateInfo deviceCreateInfo = {};
     deviceCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
-    deviceCreateInfo.queueCreateInfoCount = static_cast<uint32_t>(queueCreateInfos.size()); // Number of Queue Create Infos
-    deviceCreateInfo.pQueueCreateInfos = queueCreateInfos.data();                           // List of Queue create infos so device can create required queues
-    deviceCreateInfo.enabledExtensionCount = static_cast<uint32_t>(deviceExtensions.size());// Number of enabled Logical Device Extensions
-    deviceCreateInfo.ppEnabledExtensionNames = deviceExtensions.data();                     // List of enabled Logical Device Extensions
+    deviceCreateInfo.queueCreateInfoCount = static_cast<uint32_t>(queueCreateInfos.size());     // Number of Queue Create Infos
+    deviceCreateInfo.pQueueCreateInfos = queueCreateInfos.data();                               // List of Queue create infos so device can create required queues
+    deviceCreateInfo.enabledExtensionCount = static_cast<uint32_t>(deviceExtensions.size());    // Number of enabled Logical Device Extensions
+    deviceCreateInfo.ppEnabledExtensionNames = deviceExtensions.data();                         // List of enabled Logical Device Extensions
 
     // Physical Device Features the Logical Device will be using
     VkPhysicalDeviceFeatures deviceFeatures = {};
-    //deviceFeatures.
 
     deviceCreateInfo.pEnabledFeatures = &deviceFeatures;        // Physical Device Features that Logical Device will use
 
@@ -167,61 +174,53 @@ void VulkanRenderer::createLogicalDevice()
         throw std::runtime_error("Failed to create a Logical Device!");
     }
 
-    // Queues are created at the same time as the device. Gets (logical) device queue in m_graphicsQueue
-    vkGetDeviceQueue(m_mainDevice.logicalDevice, indices.graphicsFamily, 0, &m_graphicsQueue);    // Only 1 queue per family, so index is 0
+    // Queues are created at the same time as the device.
+    // So we want handle to queues
+    // From given logical device, of given Queue Family, of given Queue Index (0 since only one queue), place reference in given VkQueue
+    vkGetDeviceQueue(m_mainDevice.logicalDevice, indices.graphicsFamily, 0, &m_graphicsQueue);
     vkGetDeviceQueue(m_mainDevice.logicalDevice, indices.presentationFamily, 0, &m_presentationQueue);
-}
-//------------------------------------------------------------------------------
-void VulkanRenderer::setupDebugMessenger()
-{
-    if (!g_enableValidationLayers)
-        return;
-
-    VkDebugUtilsMessengerCreateInfoEXT createInfo{};
-    VulkanValidation::populateDebugMessengerCreateInfo(createInfo);
-
-    if (VulkanValidation::createDebugUtilsMessengerEXT(m_pInstance, &createInfo, nullptr, &m_debugMessenger) != VK_SUCCESS) {
-        throw std::runtime_error("Failed to set up Debug messenger!");
-    }
 }
 //------------------------------------------------------------------------------
 void VulkanRenderer::createSurface()
 {
     // Create Surface (creates a surface create info struct, runs the create surface for the specific host OS, returns result)
-    VkResult res = glfwCreateWindowSurface(m_pInstance, m_pWindow, nullptr, &m_surface);
-    if (res != VK_SUCCESS)
+    VkResult result = glfwCreateWindowSurface(m_pInstance, m_pWindow, nullptr, &m_surface);
+    if (result != VK_SUCCESS)
     {
-        throw std::runtime_error("Failed to create surface!");
+        throw std::runtime_error("Failed to create a surface!");
     }
 }
 //------------------------------------------------------------------------------
-void VulkanRenderer::createSwapChain()
+void VulkanRenderer::createSwapchain()
 {
-    // Get SwapChain details so we can pick best settings
-    SwapChainDetails swapChainDetails = getSwapChainDetails(m_mainDevice.physicalDevice);
+    // Get Swapchain details so we can pick best settings
+    SwapchainDetails swapChainDetails = getSwapchainDetails(m_mainDevice.physicalDevice);
 
-    // Find optimal surface values for our SwapChain
+    // Find optimal surface values for our Swapchain
     VkSurfaceFormatKHR surfaceFormat = chooseBestSurfaceFormat(swapChainDetails.formats);
     VkPresentModeKHR presentationMode = chooseBestPresentationMode(swapChainDetails.presentationModes);
     VkExtent2D extent = chooseBestSwapExtent(swapChainDetails.surfaceCapabilities);
 
     // How many images are in the swap chain? Get 1 more than the minimum to allow triple buffering
     uint32_t imageCount = swapChainDetails.surfaceCapabilities.minImageCount + 1;
+
+    // If imageCount higher than max, then clamp down to max
+    // If 0, then limitless
     if (swapChainDetails.surfaceCapabilities.maxImageCount > 0 &&
         swapChainDetails.surfaceCapabilities.maxImageCount < imageCount)
     {
-        imageCount = swapChainDetails.surfaceCapabilities.maxImageCount;    // Clamp the value
+        imageCount = swapChainDetails.surfaceCapabilities.maxImageCount;
     }
  
-    // Creation information for SwapChain
+    // Creation information for Swapchain
     VkSwapchainCreateInfoKHR swapChainCreateInfo = {};
     swapChainCreateInfo.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
-    swapChainCreateInfo.surface = m_surface;                                                    // SwapChain surface
-    swapChainCreateInfo.imageFormat = surfaceFormat.format;                                     // SwapChain format
-    swapChainCreateInfo.imageColorSpace = surfaceFormat.colorSpace;                             // SwapChain color space
-    swapChainCreateInfo.presentMode = presentationMode;                                         // SwapChain presentation mode
-    swapChainCreateInfo.imageExtent = extent;                                                   // SwapChain image extents
-    swapChainCreateInfo.minImageCount = imageCount;                                             // SwapChain minimum images
+    swapChainCreateInfo.surface = m_surface;                                                    // Swapchain surface
+    swapChainCreateInfo.imageFormat = surfaceFormat.format;                                     // Swapchain format
+    swapChainCreateInfo.imageColorSpace = surfaceFormat.colorSpace;                             // Swapchain color space
+    swapChainCreateInfo.presentMode = presentationMode;                                         // Swapchain presentation mode
+    swapChainCreateInfo.imageExtent = extent;                                                   // Swapchain image extents
+    swapChainCreateInfo.minImageCount = imageCount;                                             // Swapchain minimum images
     swapChainCreateInfo.imageArrayLayers = 1;                                                   // Number of layers for each image in swap chain
     swapChainCreateInfo.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;                       // What attachment images will be used as
     swapChainCreateInfo.preTransform = swapChainDetails.surfaceCapabilities.currentTransform;   // Transform to perform on swap chain
@@ -253,11 +252,11 @@ void VulkanRenderer::createSwapChain()
     // If old swap chain has been destroyed and this one replaces it, then link the old one to quickly hand over responsibilities
     swapChainCreateInfo.oldSwapchain = VK_NULL_HANDLE;
 
-    // Create SwapChain
+    // Create Swapchain
     VkResult result = vkCreateSwapchainKHR(m_mainDevice.logicalDevice, &swapChainCreateInfo, nullptr, &m_swapChain);
     if (result != VK_SUCCESS)
     {
-        throw std::runtime_error("Failed to create SwapChain!");
+        throw std::runtime_error("Failed to create Swapchain!");
     }
 
     // Store useful (working) values for later reference
@@ -271,7 +270,7 @@ void VulkanRenderer::createSwapChain()
     vkGetSwapchainImagesKHR(m_mainDevice.logicalDevice, m_swapChain, &swapchainImageCount, images.data());
 
     // Store each Swapchain image reference in our data member
-    for (const auto& image : images)
+    for (VkImage image : images)
     {
         // Store image handle
         SwapchainImage swapchainImage = {};
@@ -280,6 +279,11 @@ void VulkanRenderer::createSwapChain()
 
         m_swapchainImages.push_back(swapchainImage);
     }
+}
+//------------------------------------------------------------------------------
+void VulkanRenderer::createGraphicsPipeline()
+{
+    // TODO
 }
 
 //------------------------------------------------------------------------------
@@ -310,7 +314,6 @@ void VulkanRenderer::getPhysicalDevice()
     }
 }
 
-// Support functions
 //------------------------------------------------------------------------------
 bool VulkanRenderer::checkInstanceExtensionSupport(std::vector<const char*>* extensionsToCheck)
 {
@@ -448,14 +451,33 @@ bool VulkanRenderer::checkDeviceSuitable(VkPhysicalDevice device)
     bool swapChainValid = false;
     if (extensionsSupported)
     {
-        SwapChainDetails swapChainDetails = getSwapChainDetails(device);
+        SwapchainDetails swapChainDetails = getSwapchainDetails(device);
         swapChainValid = !swapChainDetails.formats.empty() && !swapChainDetails.presentationModes.empty();
     }
 
     return indices.isValid() && extensionsSupported && swapChainValid;
 }
 
-// Utility functions
+//------------------------------------------------------------------------------
+std::vector<const char*> VulkanRenderer::getRequiredInstanceExtensions()
+{
+    // Setup the GLFW extensions that the Vulkan Instance will use
+    uint32_t glfwExtensionCount = 0;    // GLFW may require multiple extensions
+    const char** glfwExtensionNames;    // Extensions names passed as an array of cstrings (array of chars)
+
+    // Get GLFW required Instance extensions
+    glfwExtensionNames = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
+
+    // Add GLFW required instance extensions to a std::vector
+    std::vector<const char*> extensions(glfwExtensionNames, glfwExtensionNames + glfwExtensionCount);
+
+    // Add also the Instance Extension required by Validation Layers, if requested
+    if (g_validationEnabled) {
+        extensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
+    }
+
+    return extensions;
+}
 //------------------------------------------------------------------------------
 QueueFamilyIndices VulkanRenderer::getQueueFamilies(VkPhysicalDevice device)
 {
@@ -500,29 +522,9 @@ QueueFamilyIndices VulkanRenderer::getQueueFamilies(VkPhysicalDevice device)
     return indices;
 }
 //------------------------------------------------------------------------------
-std::vector<const char*> VulkanRenderer::getRequiredInstanceExtensions()
+SwapchainDetails VulkanRenderer::getSwapchainDetails(VkPhysicalDevice device)
 {
-    // Setup the GLFW extensions that the Vulkan Instance will use
-    uint32_t glfwExtensionCount = 0;    // GLFW may require multiple extensions
-    const char** glfwExtensionNames;    // Extensions names passed as an array of cstrings (array of chars)
-
-    // Get GLFW required Instance extensions
-    glfwExtensionNames = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
-
-    // Add GLFW required instance extensions to a std::vector
-    std::vector<const char*> extensions(glfwExtensionNames, glfwExtensionNames + glfwExtensionCount);
-
-    // Add also the Instance Extension required by Validation Layers, if requested
-    if (g_enableValidationLayers) {
-        extensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
-    }
-
-    return extensions;
-}
-//------------------------------------------------------------------------------
-SwapChainDetails VulkanRenderer::getSwapChainDetails(VkPhysicalDevice device)
-{
-    SwapChainDetails swapChainDetails;
+    SwapchainDetails swapChainDetails;
 
     // Get the Surface capabilities for the given surface on the given physical device
     vkGetPhysicalDeviceSurfaceCapabilitiesKHR(device, m_surface, &swapChainDetails.surfaceCapabilities);
@@ -650,6 +652,12 @@ VkImageView VulkanRenderer::createImageView(VkImage image, VkFormat format, VkIm
         throw std::runtime_error("Failed to create ImageView!");
     }
     return imageView;
+}
+//------------------------------------------------------------------------------
+VkShaderModule VulkanRenderer::createShaderModule(const std::vector<char>& code)
+{
+    // TODO
+    return VkShaderModule();
 }
 
 #pragma warning( pop )

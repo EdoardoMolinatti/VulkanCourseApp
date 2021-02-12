@@ -1,11 +1,12 @@
 #pragma once
 
-// Main graphics libraries (Vulkan, GLFW)
+// Main graphics libraries (Vulkan API, GLFW [Graphics Library FrameWork])
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
 
 // C++ STL
 #include <algorithm>
+#include <iostream>
 #include <set>
 #include <stdexcept>
 #include <vector>
@@ -14,6 +15,9 @@
 #include "VulkanValidation.h"
 #include "Utilities.h"
 
+// Disable warning about Vulkan unscoped enums for this entire file
+#pragma warning( push )
+#pragma warning(disable : 26812) // The enum type * is unscoped. Prefer 'enum class' over 'enum'.
 
 class VulkanRenderer
 {
@@ -26,9 +30,11 @@ public:
     void        cleanup();
 
 private:
-    GLFWwindow*                 m_pWindow = nullptr;
+    // GLFW Components
+    GLFWwindow *                m_pWindow = nullptr;
 
-    // Vulkan members
+    // Vulkan Components
+    // - Main
     VkInstance                  m_pInstance = nullptr;
     VkDebugUtilsMessengerEXT    m_debugMessenger = 0U;
     struct {
@@ -41,38 +47,42 @@ private:
     VkSwapchainKHR              m_swapChain = 0;    // '0' instead of 'nullptr' for compatibility with 32bit version
     std::vector<SwapchainImage> m_swapchainImages;
 
-    // Disable warning about Vulkan unscoped enums for this entire file
-#pragma warning( push )
-#pragma warning(disable : 26812) // The enum type * is unscoped. Prefer 'enum class' over 'enum'.
+    // - Utility
     VkFormat                    m_swapChainImageFormat = VK_FORMAT_UNDEFINED;
     VkExtent2D                  m_swapChainExtent = {};
-#pragma warning( pop )
 
-    // Vulkan functions
+    // Vulkan Functions
+    // - Create Functions
     void createInstance();
+    void createDebugMessenger();
     void createLogicalDevice();
-    void setupDebugMessenger();
     void createSurface();
-    void createSwapChain();
+    void createSwapchain();
+    void createGraphicsPipeline();
 
-    // Get Functions
+    // - Get Functions
     void getPhysicalDevice();
 
-    // Support functions
+    // - Support Functions
+    // -- Checker Functions
     bool checkInstanceExtensionSupport(std::vector<const char*> * extensionsToCheck);
     bool checkDeviceExtensionSupport(VkPhysicalDevice device);
     bool checkValidationLayerSupport();
     bool checkDeviceSuitable(VkPhysicalDevice device);
 
-    // Utility functions
-    QueueFamilyIndices          getQueueFamilies(VkPhysicalDevice device);
+    // -- Getter Functions
     std::vector<const char*>    getRequiredInstanceExtensions();
-    SwapChainDetails            getSwapChainDetails(VkPhysicalDevice device);
+    QueueFamilyIndices          getQueueFamilies(VkPhysicalDevice device);
+    SwapchainDetails            getSwapchainDetails(VkPhysicalDevice device);
 
+    // -- Choose Functions
     VkSurfaceFormatKHR          chooseBestSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& formats);
     VkPresentModeKHR            chooseBestPresentationMode(const std::vector<VkPresentModeKHR>& presentationModes);
     VkExtent2D                  chooseBestSwapExtent(const VkSurfaceCapabilitiesKHR &surfaceCapabilities);
 
+    // -- Create Functions
     VkImageView                 createImageView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags);
+    VkShaderModule              createShaderModule(const std::vector<char> &code);
 };
 
+#pragma warning( pop )
