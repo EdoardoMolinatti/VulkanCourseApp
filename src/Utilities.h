@@ -88,9 +88,9 @@ static std::vector<char> readFile(const std::string &filename)
     return fileBuffer;
 }
 
-/////////////////////////////
-// Generic Utilities (static)
-/////////////////////////////
+////////////////////
+// Generic Utilities
+////////////////////
 
 // Current working directory
 static std::string getCurrentWorkingDirectory()

@@ -1,5 +1,8 @@
 #include "VulkanRenderer.h"
 
+using std::cout;
+using std::endl;
+
 // Disable warning about Vulkan unscoped enums for this entire file
 #pragma warning( push )
 #pragma warning(disable : 26812) // The enum type * is unscoped. Prefer 'enum class' over 'enum'.
@@ -30,10 +33,11 @@ int VulkanRenderer::init(GLFWwindow* newWindow)
         getPhysicalDevice();
         createLogicalDevice();
         createSwapchain();
+        createGraphicsPipeline();
     }
     catch (const std::runtime_error &e)
     {
-        std::cout << "ERROR: " << e.what() << std::endl;
+        cout << "ERROR: " << e.what() << endl;
         return EXIT_FAILURE;
     }
 
@@ -92,8 +96,8 @@ void VulkanRenderer::createInstance()
     {
         createInfo.enabledLayerCount = static_cast<uint32_t>(g_validationLayers.size());
         createInfo.ppEnabledLayerNames = g_validationLayers.data();
-        std::cout    << "Added options to create " << createInfo.enabledLayerCount
-                    << " Validation Layer" << ((createInfo.enabledLayerCount > 1) ? "s." : ".") << std::endl;
+        cout    << "Added options to create " << createInfo.enabledLayerCount
+                    << " Validation Layer" << ((createInfo.enabledLayerCount > 1) ? "s." : ".") << endl;
 
         // We do this to be able to debug also vkCreateInstance() and vkDestroyInstance()
         VulkanValidation::populateDebugMessengerCreateInfo(debugCreateInfo);
@@ -283,7 +287,38 @@ void VulkanRenderer::createSwapchain()
 //------------------------------------------------------------------------------
 void VulkanRenderer::createGraphicsPipeline()
 {
-    // TODO
+    // Read in SPIR-V code of shaders
+    auto vertexShaderCode = readFile("Shaders/vert.spv");
+    auto fragmentShaderCode = readFile("Shaders/frag.spv");
+
+    // Create Shader Modules (ALWAYS keep sure to destroy them to avoid memory leaks)
+    VkShaderModule vertexShaderModule = createShaderModule(vertexShaderCode);
+    VkShaderModule fragmentShaderModule = createShaderModule(fragmentShaderCode);
+
+    // -- SHADER STAGE CREATION INFORMATION --
+    // Vertex Stage creation information
+    VkPipelineShaderStageCreateInfo vertexShaderCreateInfo = {};
+    vertexShaderCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+    vertexShaderCreateInfo.stage = VK_SHADER_STAGE_VERTEX_BIT;          // Shader Stage name
+    vertexShaderCreateInfo.module = vertexShaderModule;                 // Shader module to be used by stage
+    vertexShaderCreateInfo.pName = "main";                              // Entry point function name (in the shader)
+
+    // Fragment Stage creation information
+    VkPipelineShaderStageCreateInfo fragmentShaderCreateInfo = {};
+    fragmentShaderCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+    fragmentShaderCreateInfo.stage = VK_SHADER_STAGE_FRAGMENT_BIT;      // Shader Stage name
+    fragmentShaderCreateInfo.module = fragmentShaderModule;             // Shader module to be used by stage
+    fragmentShaderCreateInfo.pName = "main";                            // Entry point function name (in the shader)
+
+    // Put shader stage creation info in to array
+    // Graphics Pipeline creation info requires array of shader stage creates
+    VkPipelineShaderStageCreateInfo shaderStages[] = { vertexShaderCreateInfo, fragmentShaderCreateInfo };
+
+    // CREATE PIPELINE - TODO: Lesson 12
+
+    // Destroy Shader Modules, no longer needed after the Pipeline is created
+    vkDestroyShaderModule(m_mainDevice.logicalDevice, fragmentShaderModule, nullptr);
+    vkDestroyShaderModule(m_mainDevice.logicalDevice, vertexShaderModule, nullptr);
 }
 
 //------------------------------------------------------------------------------
@@ -322,7 +357,7 @@ bool VulkanRenderer::checkInstanceExtensionSupport(std::vector<const char*>* ext
     // Need to get the number of extensions to create an array of a matching size
     uint32_t extensionsCount = 0;
     vkRes = vkEnumerateInstanceExtensionProperties(nullptr, &extensionsCount, nullptr);
-    std::cout << "Vulkan Instance Extensions (available): " << extensionsCount << std::endl;
+    cout << "Vulkan Instance Extensions (available): " << extensionsCount << endl;
 
     // Create a list of VkExtensionProperties using extensionsCount
     std::vector<VkExtensionProperties> extensions(extensionsCount);
@@ -334,10 +369,10 @@ bool VulkanRenderer::checkInstanceExtensionSupport(std::vector<const char*>* ext
             VkResult vkRes = vkEnumerateInstanceExtensionProperties(nullptr, &extensionsCount, extensions.data());
         }
         while (vkRes == VK_INCOMPLETE);
-        //std::cout << std::endl;
+        //cout << endl;
         //for (auto& extension : extensions) {
-        //    std::cout << "   Name: " << extension.extensionName << std::endl;
-        //    std::cout << "Version: " << extension.specVersion << std::endl;
+        //    cout << "   Name: " << extension.extensionName << endl;
+        //    cout << "Version: " << extension.specVersion << endl;
         //}
     }
 
@@ -356,7 +391,7 @@ bool VulkanRenderer::checkInstanceExtensionSupport(std::vector<const char*>* ext
 
         if (!hasExtension)
         {
-            std::cout << "Required Vulkan Instance extension '" << checkExtension << "' is NOT supported." << std::endl;
+            cout << "Required Vulkan Instance extension '" << checkExtension << "' is NOT supported." << endl;
             return false;
         }
     }
@@ -369,7 +404,7 @@ bool VulkanRenderer::checkDeviceExtensionSupport(VkPhysicalDevice device)
     // Get device extensions count
     uint32_t extensionsCount = 0;
     vkEnumerateDeviceExtensionProperties(device, nullptr, &extensionsCount, nullptr);
-    std::cout << "Vulkan Device Extensions (available): " << extensionsCount << std::endl;
+    cout << "Vulkan Device Extensions (available): " << extensionsCount << endl;
 
     // If no extensions found, return false
     if (extensionsCount <= 0)
@@ -656,8 +691,20 @@ VkImageView VulkanRenderer::createImageView(VkImage image, VkFormat format, VkIm
 //------------------------------------------------------------------------------
 VkShaderModule VulkanRenderer::createShaderModule(const std::vector<char>& code)
 {
-    // TODO
-    return VkShaderModule();
+    // Shader Module creation information
+    VkShaderModuleCreateInfo shaderModuleCreateInfo = {};
+    shaderModuleCreateInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
+    shaderModuleCreateInfo.codeSize = code.size();                                      // Size of code
+    shaderModuleCreateInfo.pCode = reinterpret_cast<const uint32_t *>(code.data());     // Pointer to code (of uint32_t pointer type)
+
+    VkShaderModule shaderModule;
+    VkResult result = vkCreateShaderModule(m_mainDevice.logicalDevice, &shaderModuleCreateInfo, nullptr, &shaderModule);
+    if (result != VK_SUCCESS)
+    {
+        throw std::runtime_error("Failed to create a shader module!");
+    }
+
+    return shaderModule;
 }
 
 #pragma warning( pop )
