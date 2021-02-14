@@ -5,6 +5,7 @@
 #include <GLFW/glfw3.h>
 
 // C++ STL
+#include <array>
 #include <algorithm>
 #include <iostream>
 #include <set>
@@ -47,6 +48,11 @@ private:
     VkSwapchainKHR              m_swapChain = 0;    // '0' instead of 'nullptr' for compatibility with 32bit version
     std::vector<SwapchainImage> m_swapchainImages;
 
+    // - Pipeline
+    VkPipeline                  m_graphicsPipeline;
+    VkPipelineLayout            m_pipelineLayout;
+    VkRenderPass                m_renderPass;
+
     // - Utility
     VkFormat                    m_swapChainImageFormat = VK_FORMAT_UNDEFINED;
     VkExtent2D                  m_swapChainExtent = {};
@@ -58,6 +64,7 @@ private:
     void createLogicalDevice();
     void createSurface();
     void createSwapchain();
+    void createRenderPass();
     void createGraphicsPipeline();
 
     // - Get Functions

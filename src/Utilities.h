@@ -32,10 +32,11 @@ const std::vector<const char *> deviceExtensions = {
 
 // Indices (locations) of Queue Families (if they exist at all)
 struct QueueFamilyIndices {
-    int graphicsFamily = -1;        // Location of Graphics Queue Family (main and necessary)
+    int graphicsFamily = -1;        // Location of Graphics Queue Family
     int presentationFamily = -1;    // Location of Presentation Queue Family
     int transferFamily = -1;
 
+    // Check if queue families are valid
     bool isValid()
     {
         return (graphicsFamily >= 0 && presentationFamily >= 0);
@@ -91,6 +92,9 @@ static std::vector<char> readFile(const std::string &filename)
 ////////////////////
 // Generic Utilities
 ////////////////////
+
+// Macro to calculates the number of elements inside a C-style array (old fashioned)
+#define ARRAY_SIZE(a)   (sizeof(a) / sizeof(a[0]))
 
 // Current working directory
 static std::string getCurrentWorkingDirectory()
