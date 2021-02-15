@@ -32,30 +32,36 @@ public:
 
 private:
     // GLFW Components
-    GLFWwindow *                m_pWindow = nullptr;
+    GLFWwindow *                    m_pWindow = nullptr;
 
     // Vulkan Components
     // - Main
-    VkInstance                  m_pInstance = nullptr;
-    VkDebugUtilsMessengerEXT    m_debugMessenger = 0U;
+    VkInstance                      m_pInstance = nullptr;
+    VkDebugUtilsMessengerEXT        m_debugMessenger = 0U;
     struct {
         VkPhysicalDevice    physicalDevice = nullptr;
         VkDevice            logicalDevice = nullptr;
-    }                           m_mainDevice;
-    VkQueue                     m_graphicsQueue = nullptr;
-    VkQueue                     m_presentationQueue = nullptr;
-    VkSurfaceKHR                m_surface = 0;      // '0' instead of 'nullptr' for compatibility with 32bit version
-    VkSwapchainKHR              m_swapChain = 0;    // '0' instead of 'nullptr' for compatibility with 32bit version
-    std::vector<SwapchainImage> m_swapchainImages;
+    }                               m_mainDevice;
+    VkQueue                         m_graphicsQueue = nullptr;
+    VkQueue                         m_presentationQueue = nullptr;
+    VkSurfaceKHR                    m_surface = 0;      // '0' instead of 'nullptr' for compatibility with 32bit version
+    VkSwapchainKHR                  m_swapChain = 0;    // '0' instead of 'nullptr' for compatibility with 32bit version
+
+    std::vector<SwapchainImage>     m_swapchainImages;
+    std::vector<VkFramebuffer>      m_swapChainFramebuffers;
+    std::vector<VkCommandBuffer>    m_commandBuffers;
 
     // - Pipeline
-    VkPipeline                  m_graphicsPipeline;
-    VkPipelineLayout            m_pipelineLayout;
-    VkRenderPass                m_renderPass;
+    VkPipeline                      m_graphicsPipeline;
+    VkPipelineLayout                m_pipelineLayout;
+    VkRenderPass                    m_renderPass;
+
+    // - Pools
+    VkCommandPool                   m_graphicsCommandPool;
 
     // - Utility
-    VkFormat                    m_swapChainImageFormat = VK_FORMAT_UNDEFINED;
-    VkExtent2D                  m_swapChainExtent = {};
+    VkFormat                        m_swapChainImageFormat = VK_FORMAT_UNDEFINED;
+    VkExtent2D                      m_swapChainExtent = {};
 
     // Vulkan Functions
     // - Create Functions
@@ -66,6 +72,12 @@ private:
     void createSwapchain();
     void createRenderPass();
     void createGraphicsPipeline();
+    void createFramebuffers();
+    void createCommandPool();
+    void createCommandBuffers();
+
+    // - Record Functions
+    void recordCommands();
 
     // - Get Functions
     void getPhysicalDevice();
