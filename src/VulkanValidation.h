@@ -1,5 +1,9 @@
 #pragma once
 
+// Disable warning about Vulkan unscoped enums for this entire file
+#pragma warning( push )
+#pragma warning(disable : 26812) // The enum type * is unscoped. Prefer 'enum class' over 'enum'.
+
 // C++ STL
 #include <vector>
 // C++ Boost
@@ -161,3 +165,5 @@ std::vector<std::string> split(const std::string& s, char delimiter)
     return tokens;
 }
 /**/
+
+#pragma warning( pop )

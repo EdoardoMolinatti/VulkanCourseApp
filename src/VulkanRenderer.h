@@ -28,11 +28,13 @@ public:
 
     // API
     int         init(GLFWwindow * newWindow);
+    void        draw();
     void        cleanup();
 
 private:
     // GLFW Components
     GLFWwindow *                    m_pWindow = nullptr;
+    uint8_t                         m_currentFrame = 0U;    // Index of current frame. For Triple Buffer it'll be in {0, 1, 2}
 
     // Vulkan Components
     // - Main
@@ -63,6 +65,11 @@ private:
     VkFormat                        m_swapChainImageFormat = VK_FORMAT_UNDEFINED;
     VkExtent2D                      m_swapChainExtent = {};
 
+    // - Synchronisation
+    std::vector<VkSemaphore>         m_imageAvailable;
+    std::vector<VkSemaphore>         m_renderFinished;
+    std::vector<VkFence>             m_drawFences;
+
     // Vulkan Functions
     // - Create Functions
     void createInstance();
@@ -75,6 +82,7 @@ private:
     void createFramebuffers();
     void createCommandPool();
     void createCommandBuffers();
+    void createSynchronisation();
 
     // - Record Functions
     void recordCommands();

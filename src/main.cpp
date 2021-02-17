@@ -62,7 +62,7 @@ int main()
     //        VkResult vkRes = vkEnumerateInstanceExtensionProperties(nullptr, &extensionsCount, extensions.data());
     //    } while (vkRes == VK_INCOMPLETE);
     //    cout << endl;
-    //    for (auto& extension : extensions) {
+    //    for (auto &extension : extensions) {
     //        cout << "   Name: " << extension.extensionName << endl;
     //        cout << "Version: " << extension.specVersion << endl;
     //    }
@@ -93,6 +93,9 @@ int main()
     {
         /* Poll for and process events */
         glfwPollEvents();
+
+        /* Vulkan Draw current frame */
+        vulkanRenderer.draw();
     }
 
     vulkanRenderer.cleanup();

@@ -39,6 +39,7 @@ int VulkanRenderer::init(GLFWwindow* newWindow)
         createCommandPool();
         createCommandBuffers();
         recordCommands();
+        createSynchronisation();
     }
     catch (const std::runtime_error &e)
     {
@@ -49,9 +50,75 @@ int VulkanRenderer::init(GLFWwindow* newWindow)
     return EXIT_SUCCESS;
 }
 //------------------------------------------------------------------------------
+void VulkanRenderer::draw()
+{
+    // Wait for given fence to signal (open) from last draw before continuing
+    vkWaitForFences(m_mainDevice.logicalDevice, 1, &m_drawFences[m_currentFrame], VK_TRUE, std::numeric_limits<uint64_t>::max());
+    // Manually reset (close) fences
+    vkResetFences(m_mainDevice.logicalDevice, 1, &m_drawFences[m_currentFrame]);
+
+    // -- GET NEXT IMAGE --
+    // Get index of next image to be drawn to, and signal semaphore when ready to be drawn to
+    uint32_t imageIndex;
+    vkAcquireNextImageKHR(m_mainDevice.logicalDevice, m_swapChain, std::numeric_limits<uint64_t>::max(), m_imageAvailable[m_currentFrame], VK_NULL_HANDLE, &imageIndex);
+    
+    // -- SUBMIT COMMAND BUFFER TO RENDER --
+    // Queue submission information
+    VkSubmitInfo submitInfo = {};
+    submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+    submitInfo.waitSemaphoreCount = 1;                                  // Number of semaphores to wait on
+    submitInfo.pWaitSemaphores = &m_imageAvailable[m_currentFrame];     // List of semaphores to wait on
+    VkPipelineStageFlags waitStages[] = {
+        VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT
+    };
+    submitInfo.pWaitDstStageMask = waitStages;                          // Stages to check semaphores at
+    submitInfo.commandBufferCount = 1;                                  // Number of command buffers to submit
+    submitInfo.pCommandBuffers = &m_commandBuffers[imageIndex];         // Command buffer to submit
+    submitInfo.signalSemaphoreCount = 1;                                // Number of semaphores to signal
+    submitInfo.pSignalSemaphores = &m_renderFinished[m_currentFrame];   // Semaphores to signal when command buffer finishes
+
+    // Submit command buffer to queue (N.B.: queues are like conveyor belts, always running)
+    VkResult result = vkQueueSubmit(m_graphicsQueue, 1, &submitInfo, m_drawFences[m_currentFrame]);
+    if (result != VK_SUCCESS)
+    {
+        throw std::runtime_error("Failed to submit Command Buffer to Queue!");
+    }
+
+
+    // -- PRESENT RENDERED IMAGE TO SCREEN --
+    VkPresentInfoKHR presentInfo = {};
+    presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
+    presentInfo.waitSemaphoreCount = 1;                                 // Number of semaphores to wait on
+    presentInfo.pWaitSemaphores = &m_renderFinished[m_currentFrame];    // Semaphores to wait on
+    presentInfo.swapchainCount = 1;                                     // Number of swapchains to present to
+    presentInfo.pSwapchains = &m_swapChain;                             // Swapchains to present images to
+    presentInfo.pImageIndices = &imageIndex;                            // Index of images in swapchains to present
+
+    // Present image (to screen - render the processed image)
+    result = vkQueuePresentKHR(m_presentationQueue, &presentInfo);
+    if (result != VK_SUCCESS)
+    {
+        throw std::runtime_error("Failed to present Image!");
+    }
+
+    // Get next frame (use % MAX_FRAME_DRAWS to keep value below MAX_FRAME_DRAWS)
+    m_currentFrame = (m_currentFrame + 1) % MAX_FRAME_DRAWS;
+}
+//------------------------------------------------------------------------------
 void VulkanRenderer::cleanup()
 {
+    // Wait until no actions being run on device before destroying
+    vkDeviceWaitIdle(m_mainDevice.logicalDevice);
+
+    for (size_t i = 0; i < MAX_FRAME_DRAWS; i++)
+    {
+        vkDestroySemaphore(m_mainDevice.logicalDevice, m_renderFinished[i], nullptr);
+        vkDestroySemaphore(m_mainDevice.logicalDevice, m_imageAvailable[i], nullptr);
+        vkDestroyFence(m_mainDevice.logicalDevice, m_drawFences[i], nullptr);
+    }
+
     vkDestroyCommandPool(m_mainDevice.logicalDevice, m_graphicsCommandPool, nullptr);
+
     for (auto framebuffer : m_swapChainFramebuffers)
     {
         vkDestroyFramebuffer(m_mainDevice.logicalDevice, framebuffer, nullptr);
@@ -616,6 +683,32 @@ void VulkanRenderer::createCommandBuffers()
         throw std::runtime_error("Failed to allocate Command Buffers!");
     }
 }
+//------------------------------------------------------------------------------
+void VulkanRenderer::createSynchronisation()
+{
+    m_imageAvailable.resize(MAX_FRAME_DRAWS);
+    m_renderFinished.resize(MAX_FRAME_DRAWS);
+    m_drawFences.resize(MAX_FRAME_DRAWS);
+
+    // Semaphore (GPU-GPU) creation information
+    VkSemaphoreCreateInfo semaphoreCreateInfo = {};
+    semaphoreCreateInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
+
+    // Fence (GPU-CPU) creation information
+    VkFenceCreateInfo fenceCreateInfo = {};
+    fenceCreateInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
+    fenceCreateInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;           // This one should start signaled (open)
+
+    for (size_t i = 0; i < MAX_FRAME_DRAWS; i++)
+    {
+        if (vkCreateSemaphore(m_mainDevice.logicalDevice, &semaphoreCreateInfo, nullptr, &m_imageAvailable[i]) != VK_SUCCESS ||
+            vkCreateSemaphore(m_mainDevice.logicalDevice, &semaphoreCreateInfo, nullptr, &m_renderFinished[i]) != VK_SUCCESS ||
+            vkCreateFence(m_mainDevice.logicalDevice, &fenceCreateInfo, nullptr, &m_drawFences[i]) != VK_SUCCESS)
+        {
+            throw std::runtime_error("Failed to create a Semaphore and/or Fence!");
+        }
+    }
+}
 
 //------------------------------------------------------------------------------
 void VulkanRenderer::recordCommands()
@@ -688,7 +781,7 @@ void VulkanRenderer::getPhysicalDevice()
     vkEnumeratePhysicalDevices(m_pInstance, &deviceCount, deviceList.data());
 
     // Check for a suitable device
-    for (const auto& device : deviceList)
+    for (const auto &device : deviceList)
     {
         if (checkDeviceSuitable(device))
         {
@@ -719,17 +812,17 @@ bool VulkanRenderer::checkInstanceExtensionSupport(std::vector<const char*>* ext
         }
         while (vkRes == VK_INCOMPLETE);
         //cout << endl;
-        //for (auto& extension : extensions) {
+        //for (auto &extension : extensions) {
         //    cout << "   Name: " << extension.extensionName << endl;
         //    cout << "Version: " << extension.specVersion << endl;
         //}
     }
 
     // Check if given extensions are within the availables
-    for (const auto& checkExtension : *extensionsToCheck)
+    for (const auto &checkExtension : *extensionsToCheck)
     {
         bool hasExtension = false;
-        for (const auto& extension : extensions)
+        for (const auto &extension : extensions)
         {
             if (strcmp(checkExtension, extension.extensionName) == 0)
             {
@@ -799,7 +892,7 @@ bool VulkanRenderer::checkValidationLayerSupport()
     {
         bool layerFound = false;
 
-        for (const auto& layerProperties : availableLayers)
+        for (const auto &layerProperties : availableLayers)
         {
             if (strcmp(layerName, layerProperties.layerName) == 0)
             {
@@ -953,7 +1046,7 @@ VkSurfaceFormatKHR VulkanRenderer::chooseBestSurfaceFormat(const std::vector<VkS
     }
 
     // If not all formats are supported, then search for optimal one
-    for (const auto& format : formats)
+    for (const auto &format : formats)
     {
         if ((format.format == VK_FORMAT_R8G8B8A8_UNORM || format.format == VK_FORMAT_B8G8R8A8_UNORM) &&
             (format.colorSpace == VK_COLOR_SPACE_SRGB_NONLINEAR_KHR))
@@ -968,7 +1061,7 @@ VkSurfaceFormatKHR VulkanRenderer::chooseBestSurfaceFormat(const std::vector<VkS
 //------------------------------------------------------------------------------
 VkPresentModeKHR VulkanRenderer::chooseBestPresentationMode(const std::vector<VkPresentModeKHR>& presentationModes)
 {
-    for (const auto& presentationMode : presentationModes)
+    for (const auto &presentationMode : presentationModes)
     {
         if (presentationMode == VK_PRESENT_MODE_MAILBOX_KHR)
         {

@@ -20,6 +20,8 @@
 #include <string>
 #include <vector>
 
+// App constants
+const int MAX_FRAME_DRAWS = 2;      // This should less (or equal at max) to swapchain images
 
 ////////////////////////
 // Vulkan main Utilities
