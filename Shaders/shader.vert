@@ -1,23 +1,12 @@
 #version 450        // Use GLSL 4.5
 
-layout(location = 0) out vec3 fragColour;   // Output colour for vertex (layout location is required for Vulkan SPIR-V)
+layout(location = 0) in vec3 pos;
+layout(location = 1) in vec3 col;
 
-// Triangle vertex positions (will put in to vertex buffer later!)
-vec3 positions[3] = vec3[](
-    vec3(0.0, -0.4, 0.0),
-    vec3(0.4, 0.4, 0.0),
-    vec3(-0.4, 0.4, 0.0)
-);
+layout(location = 0) out vec3 fragCol;
 
-// Triangle vertex colours
-vec3 colours[3] = vec3[](
-    vec3(1.0, 0.0, 0.0),
-    vec3(0.0, 1.0, 0.0),
-    vec3(0.0, 0.0, 1.0)
-);
-
-// N.B.: Vulkan allows you to specify the name of the first function to call in a shader
 void main() {
-    gl_Position = vec4(positions[gl_VertexIndex], 1.0);
-    fragColour = colours[gl_VertexIndex];
+    gl_Position = vec4(pos, 1.0);
+
+    fragCol = col;
 }

@@ -13,8 +13,9 @@
 #include <vector>
 
 // Project includes
-#include "VulkanValidation.h"
+#include "Mesh.h"
 #include "Utilities.h"
+#include "VulkanValidation.h"
 
 // Disable warning about Vulkan unscoped enums for this entire file
 #pragma warning( push )
@@ -35,6 +36,9 @@ private:
     // GLFW Components
     GLFWwindow *                    m_pWindow = nullptr;
     uint8_t                         m_currentFrame = 0U;    // Index of current frame. For Triple Buffer it'll be in {0, 1, 2}
+
+    // Scene Objects
+    Mesh                            m_firstMesh;
 
     // Vulkan Components
     // - Main
