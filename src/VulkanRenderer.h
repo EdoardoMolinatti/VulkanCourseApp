@@ -38,7 +38,7 @@ private:
     uint8_t                         m_currentFrame = 0U;    // Index of current frame. For Triple Buffer it'll be in {0, 1, 2}
 
     // Scene Objects
-    Mesh                            m_firstMesh;
+    std::vector<Mesh>               m_meshList;
 
     // Vulkan Components
     // - Main
@@ -70,9 +70,9 @@ private:
     VkExtent2D                      m_swapChainExtent = {};
 
     // - Synchronisation
-    std::vector<VkSemaphore>         m_imageAvailable;
-    std::vector<VkSemaphore>         m_renderFinished;
-    std::vector<VkFence>             m_drawFences;
+    std::vector<VkSemaphore>        m_imageAvailable;
+    std::vector<VkSemaphore>        m_renderFinished;
+    std::vector<VkFence>            m_drawFences;
 
     // Vulkan Functions
     // - Create Functions
