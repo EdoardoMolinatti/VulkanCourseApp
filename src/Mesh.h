@@ -30,7 +30,7 @@ private:
     VkBuffer            m_vertexBuffer = nullptr;
     VkDeviceMemory      m_vertexBufferMemory = nullptr;
 
-    uint32_t            m_indexCount = 0U;;
+    uint32_t            m_indexCount = 0U;
     VkBuffer            m_indexBuffer = nullptr;
     VkDeviceMemory      m_indexBufferMemory = nullptr;
 

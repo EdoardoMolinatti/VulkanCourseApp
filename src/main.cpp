@@ -2,12 +2,6 @@
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
 
-// OpenGL Mathematics
-#define GLM_FORCE_RADIANS
-#define GLM_FORCE_DEPTH_ZERO_TO_ONE
-#include <glm/glm.hpp>
-#include <glm/mat4x4.hpp>
-
 // C++ STL
 #include <iostream>
 //#include <stdexcept>
@@ -44,7 +38,7 @@ void initWindow(std::string name = "Test Window", const int width = 1024, const 
 int main()
 {
     // Initialize Main Window
-    initWindow();
+    initWindow("Vulkan Test App", 1440, 900);
 
     //--------------------------------------------------------------------------
     //// Vulkan extensions check
@@ -76,7 +70,7 @@ int main()
     //--------------------------------------------------------------------------
 
     // C++ compiler version check
-    cout << "C++ Compiler version: " << static_cast<long>(__cplusplus) << endl;
+    cout << "C++ Compiler version: " << __cplusplus << endl;
     // Current Working Directory
     cout << "Current Working Directory: '" << getCurrentWorkingDirectory() << "'" << endl;
     //
@@ -88,11 +82,27 @@ int main()
         return EXIT_FAILURE;
     }
 
+    // 3D Model update variables
+    float angle = 0.0f;
+    float deltaTime = 0.0f;
+    float lastTime = 0.0f;
+
     // Main loop until window closed
     while (!glfwWindowShouldClose(window))
     {
         /* Poll for and process events */
         glfwPollEvents();
+
+        /* Update model */
+        float now = glfwGetTime();
+        deltaTime = now - lastTime;
+        lastTime = now;
+
+        angle += 10.0f * deltaTime;
+        if (angle > 360.0f) { angle -= 360.0f; }
+
+        vulkanRenderer.updateModel(glm::rotate(glm::mat4(1.0f), glm::radians(angle), glm::vec3(0.0f, 0.0f, 1.0f)));
+        /**/
 
         /* Vulkan Draw current frame */
         vulkanRenderer.draw();
@@ -100,8 +110,9 @@ int main()
 
     vulkanRenderer.cleanup();
 
+    // Destroy GLFW window and terminate (stop) GLFW
     glfwDestroyWindow(window);
-
     glfwTerminate();
+
     return EXIT_SUCCESS;
 }

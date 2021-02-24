@@ -32,7 +32,8 @@
 #include <glm/glm.hpp>
 
 // App constants
-const int MAX_FRAME_DRAWS = 2;      // This should less (or equal at max) to swapchain images
+const int MAX_FRAME_DRAWS = 3;
+// MAX_FRAME_DRAWS should be less (or equal at max) to swapchain images
 
 ////////////////////////
 // Vulkan main Utilities

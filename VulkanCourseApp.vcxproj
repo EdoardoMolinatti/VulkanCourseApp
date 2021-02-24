@@ -169,7 +169,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src/VulkanRenderer.h" />
-    <ClInclude Include="src\common.h" />
     <ClInclude Include="src\Mesh.h" />
     <ClInclude Include="src\Utilities.h" />
     <ClInclude Include="src\VulkanValidation.h" />
