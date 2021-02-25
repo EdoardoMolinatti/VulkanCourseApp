@@ -27,12 +27,12 @@ public:
 
 private:
     uint32_t            m_vertexCount = 0U;
-    VkBuffer            m_vertexBuffer = nullptr;
-    VkDeviceMemory      m_vertexBufferMemory = nullptr;
+    VkBuffer            m_vertexBuffer = 0;             // '0' instead of 'nullptr' for compatibility with 32bit version
+    VkDeviceMemory      m_vertexBufferMemory = 0;       // '0' instead of 'nullptr' for compatibility with 32bit version
 
     uint32_t            m_indexCount = 0U;
-    VkBuffer            m_indexBuffer = nullptr;
-    VkDeviceMemory      m_indexBufferMemory = nullptr;
+    VkBuffer            m_indexBuffer = 0;              // '0' instead of 'nullptr' for compatibility with 32bit version
+    VkDeviceMemory      m_indexBufferMemory = 0;        // '0' instead of 'nullptr' for compatibility with 32bit version
 
     VkPhysicalDevice    m_physicalDevice = nullptr;
     VkDevice            m_device= nullptr;              // This is our Logical Device
