@@ -33,7 +33,8 @@
 
 // App constants
 const int MAX_FRAME_DRAWS = 3;
-// MAX_FRAME_DRAWS should be less (or equal at max) to swapchain images
+//        MAX_FRAME_DRAWS should be less (or equal at max) to swapchain images
+const int MAX_OBJECTS = 2;
 
 ////////////////////////
 // Vulkan main Utilities
@@ -216,6 +217,19 @@ static void copyBuffer(VkDevice device, VkQueue transferQueue, VkCommandPool tra
 
     // Free temporary command buffer back to pool
     vkFreeCommandBuffers(device, transferCommandPool, 1, &transferCommandBuffer);
+}
+
+static std::string getVersionString(uint32_t versionBitmask) {
+    static const int MAX_STR_LENGTH = 64;
+    char versionString[MAX_STR_LENGTH];
+
+    uint32_t uMajorAPIVersion = VK_VERSION_MAJOR(versionBitmask);
+    uint32_t uMinorAPIVersion = VK_VERSION_MINOR(versionBitmask);
+    uint32_t uPatchAPIVersion = VK_VERSION_PATCH(versionBitmask);
+
+    sprintf_s(versionString, MAX_STR_LENGTH, "%u.%u.%u", uMajorAPIVersion, uMinorAPIVersion, uPatchAPIVersion);
+
+    return versionString;
 }
 
 ////////////////////

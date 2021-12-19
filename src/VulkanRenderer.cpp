@@ -274,6 +274,11 @@ void VulkanRenderer::createInstance()
     {
         throw std::runtime_error("Failed to create a Vulkan Instance!");
     }
+
+    // Vulkan Version
+    uint32_t vkApiVersion;
+    vkEnumerateInstanceVersion(&vkApiVersion);
+    cout << "Vulkan Instance Version: " << getVersionString(vkApiVersion) << endl;
 }
 //------------------------------------------------------------------------------
 void VulkanRenderer::createDebugMessenger()
@@ -1148,11 +1153,13 @@ bool VulkanRenderer::checkValidationLayerSupport()
 //------------------------------------------------------------------------------
 bool VulkanRenderer::checkDeviceSuitable(VkPhysicalDevice device)
 {
-    /*/ Information about the device itself (ID, name, type, vendor, etc.)
+    // Information about the device itself (ID, name, type, vendor, etc.)
     VkPhysicalDeviceProperties deviceProperties;
     vkGetPhysicalDeviceProperties(device, &deviceProperties);
 
-    // Information about what the device can do (geom shaders, tessellation shaders, wide lines, etc.)
+    cout << "Highest Supported Vulkan Version (by Physical Device): " << getVersionString(deviceProperties.apiVersion) << endl;
+
+    /*/ Information about what the device can do (geom shaders, tessellation shaders, wide lines, etc.)
     VkPhysicalDeviceFeatures deviceFeatures;
     vkGetPhysicalDeviceFeatures(device, &deviceFeatures);
     /**/

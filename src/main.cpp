@@ -94,7 +94,7 @@ int main()
         glfwPollEvents();
 
         /* Update model */
-        float now = glfwGetTime();
+        float now = static_cast<float>(glfwGetTime());
         deltaTime = now - lastTime;
         lastTime = now;
 

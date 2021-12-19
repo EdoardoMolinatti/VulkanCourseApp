@@ -37,3 +37,9 @@ x86/*
 x64/*
 Debug/**
 Release/**
+
+# Visual Studio Code
+**/.vscode/**
+
+# Compiled Shaders (SPIR-V) https://www.khronos.org/api/spir
+**/*.spv
