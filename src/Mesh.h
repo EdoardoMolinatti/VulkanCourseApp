@@ -1,4 +1,5 @@
-#pragma once
+#ifndef MESH_H
+#define MESH_H
 
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
@@ -42,3 +43,4 @@ private:
     void createIndexBuffer(VkQueue transferQueue, VkCommandPool transferCommandPool, std::vector<uint32_t> * indices);
 };
 
+#endif //MESH_H

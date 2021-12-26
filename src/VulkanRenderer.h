@@ -1,4 +1,5 @@
-#pragma once
+#ifndef VULKAN_RENDERER_H
+#define VULKAN_RENDERER_H
 
 // Main graphics libraries (Vulkan API, GLFW [Graphics Library FrameWork])
 #define GLFW_INCLUDE_VULKAN
@@ -149,3 +150,5 @@ private:
 };
 
 #pragma warning( pop )
+
+#endif //VULKAN_RENDERER_H

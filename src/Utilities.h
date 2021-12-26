@@ -1,8 +1,9 @@
-#pragma once
+#ifndef UTILITIES_H
+#define UTILITIES_H
 
 // Defines for C++ ISO Standards            (https://en.wikipedia.org/wiki/C%2B%2B for a list of standards)
 #define __cpp_1997 199711L      // C++98
-#define __cpp_2003 __cpp_1997   // C++98    (this was a TC - Technical Corrigendum - of the standard, not a new release)
+#define __cpp_2003 __cpp_1997   // C++03    (this was a TC - Technical Corrigendum - of the standard, not a new release)
 #define __cpp_2011 201103L      // C++11
 #define __cpp_2014 201402L      // C++14
 #define __cpp_2017 201703L      // C++17
@@ -253,3 +254,5 @@ static std::string getCurrentWorkingDirectory()
 }
 
 #pragma warning( pop )
+
+#endif //UTILITIES_H

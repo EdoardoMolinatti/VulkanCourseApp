@@ -1,4 +1,5 @@
-#pragma once
+#ifndef VULKAN_VALIDATION_H
+#define VULKAN_VALIDATION_H
 
 // Disable warning about Vulkan unscoped enums for this entire file
 #pragma warning( push )
@@ -167,3 +168,5 @@ std::vector<std::string> split(const std::string& s, char delimiter)
 /**/
 
 #pragma warning( pop )
+
+#endif //VULKAN_VALIDATION_H
