@@ -8,6 +8,10 @@
 
 #include "Utilities.h"
 
+using namespace Utilities;
+// Utilities::Vertex, Utilities::createBuffer, Utilities::copyBuffer;
+
+
 class Mesh
 {
 public:

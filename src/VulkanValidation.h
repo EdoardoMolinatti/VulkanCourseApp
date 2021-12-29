@@ -10,12 +10,13 @@
 // C++ Boost
 #include <boost/algorithm/string.hpp>
 
-// Globals used only for Validation Layers
-#ifdef NDEBUG
-const bool g_validationEnabled = false;
+// Global used only for Validation Layers
+#ifdef NDEBUG // => #ifndef DEBUG (only NDEBUG preprocessor macro is standard)
+static const bool sg_validationEnabled = false; // Release
 #else
-const bool g_validationEnabled = true;
+static const bool sg_validationEnabled = true;  // Debug
 #endif
+
 
 // VK_LAYER_KHRONOS_validation = All standard validation layers (Khronos Group)
 const std::vector<const char*> g_validationLayers = {

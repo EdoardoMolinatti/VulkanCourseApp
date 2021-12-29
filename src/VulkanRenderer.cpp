@@ -39,7 +39,10 @@ int VulkanRenderer::init(GLFWwindow* newWindow)
         createFramebuffers();
         createCommandPool();
 
+        //======================================================================
+        //------------------------------
         // Model-View-Projection setup
+        //------------------------------
         m_mvp.projection = glm::perspective(glm::radians(45.0f), (float)m_swapChainExtent.width / (float)m_swapChainExtent.height, 0.1f, 100.0f);
         //                                               FOV-Y ,                          Aspect Ratio                           ,zNear, zFar
         m_mvp.view = glm::lookAt(glm::vec3(0.0f, 0.0f, 2.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
@@ -81,7 +84,7 @@ int VulkanRenderer::init(GLFWwindow* newWindow)
 
         m_meshList.push_back(firstMesh);
         m_meshList.push_back(secondMesh);
-        //------------------------------
+        //======================================================================
 
         createCommandBuffers();
         createUniformBuffers();
@@ -106,6 +109,12 @@ void VulkanRenderer::updateModel(glm::mat4 newModel)
 //------------------------------------------------------------------------------
 void VulkanRenderer::draw()
 {
+    // Check if the window is iconified
+    if (glfwGetWindowAttrib(m_pWindow, GLFW_ICONIFIED))
+    {
+        return;
+    }
+
     // Wait for given fence to signal (open) from last draw before continuing
     vkWaitForFences(m_mainDevice.logicalDevice, 1, &m_drawFences[m_currentFrame], VK_TRUE, std::numeric_limits<uint64_t>::max());
     // Manually reset (close) fences
@@ -201,7 +210,7 @@ void VulkanRenderer::cleanup()
     vkDestroyPipelineLayout(m_mainDevice.logicalDevice, m_pipelineLayout, nullptr);
     vkDestroyRenderPass(m_mainDevice.logicalDevice, m_renderPass, nullptr);
 
-    for (auto image : m_swapchainImages)
+    for (auto &image : m_swapchainImages)
     {
         vkDestroyImageView(m_mainDevice.logicalDevice, image.imageView, nullptr);
     }
@@ -210,7 +219,7 @@ void VulkanRenderer::cleanup()
 
     vkDestroyDevice(m_mainDevice.logicalDevice, nullptr);
 
-    if (g_validationEnabled) {
+    if (sg_validationEnabled) {
         VulkanValidation::destroyDebugUtilsMessengerEXT(m_pInstance, m_debugMessenger, nullptr);
     }
 
@@ -223,10 +232,14 @@ void VulkanRenderer::cleanup()
 //------------------------------------------------------------------------------
 void VulkanRenderer::createInstance()
 {
-    if (g_validationEnabled && !checkValidationLayerSupport())
+#pragma warning( push )
+#pragma warning(disable : 6237) // (<zero> && <expression>) is always zero. <expression> is never evaluated and may have side effects
+    // Optional Validation Layers
+    if (sg_validationEnabled && !checkValidationLayerSupport())
     {
-        throw std::runtime_error("Validation Layers requested, but at least one is not available!");
+        throw std::runtime_error("Validation Layers requested, but at least one of them isn't available!");
     }
+#pragma warning( pop )
 
     // Information about the application itself
     // Most data here doesn't affect the program and is for developer convenience
@@ -245,7 +258,7 @@ void VulkanRenderer::createInstance()
 
     // Optional Validation Layers
     VkDebugUtilsMessengerCreateInfoEXT debugCreateInfo; // This structure must be alive (not destroyed) when calling vkCreateInstance()
-    if (g_validationEnabled)
+    if (sg_validationEnabled)
     {
         createInfo.enabledLayerCount = static_cast<uint32_t>(g_validationLayers.size());
         createInfo.ppEnabledLayerNames = g_validationLayers.data();
@@ -284,7 +297,7 @@ void VulkanRenderer::createInstance()
 void VulkanRenderer::createDebugMessenger()
 {
     // Only create callback if validation enabled
-    if (!g_validationEnabled) return;
+    if (!sg_validationEnabled) return;
 
     VkDebugUtilsMessengerCreateInfoEXT createInfo{};
     VulkanValidation::populateDebugMessengerCreateInfo(createInfo);
@@ -471,7 +484,7 @@ void VulkanRenderer::createRenderPass()
     subpass.pColorAttachments = &colourAttachmentReference;
 
     // Need to determine when layout transitions occur using subpass dependencies
-    std::array<VkSubpassDependency, 2> subpassDependencies;
+    std::array<VkSubpassDependency, 2> subpassDependencies = {};
 
     // Conversion from VK_IMAGE_LAYOUT_UNDEFINED to VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL
     // Transition must happen after (source moment)...
@@ -576,7 +589,7 @@ void VulkanRenderer::createGraphicsPipeline()
                                                                     // VK_VERTEX_INPUT_RATE_INSTANCE    : Move to a vertex for the next instance
 
     // How the data for an attribute is defined within a vertex
-    std::array<VkVertexInputAttributeDescription, 2> attributeDescriptions;
+    std::array<VkVertexInputAttributeDescription, 2> attributeDescriptions = {};
 
     // Vertex Position Attribute
     attributeDescriptions[0].binding = 0;                           // Which binding the data is at (should be same as above)
@@ -1192,7 +1205,7 @@ std::vector<const char*> VulkanRenderer::getRequiredInstanceExtensions()
     std::vector<const char*> extensions(glfwExtensionNames, glfwExtensionNames + glfwExtensionCount);
 
     // Add also the Instance Extension required by Validation Layers, if requested
-    if (g_validationEnabled) {
+    if (sg_validationEnabled) {
         extensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
     }
 

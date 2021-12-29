@@ -8,37 +8,28 @@
 #include <string>
 #include <vector>
 
+using std::cout, std::endl;
+
 // Project includes
 #include "VulkanRenderer.h"
 #include "Utilities.h"
 
-using std::cout;
-using std::endl;
-
+using namespace Utilities;
 
 // Global variables
-GLFWwindow* window = nullptr;
-VulkanRenderer vulkanRenderer;
+GLFWwindow*     sg_pWindow = nullptr;
+VulkanRenderer  sg_vulkanRenderer;
 
-void initWindow(std::string name = "Test Window", const int width = 1024, const int height = 768)
-{
-    // Initialize GLFW
-    glfwInit();
 
-    // To use Vulkan API we have to specify NO_API to GLFW library (to NOT work with OpenGL)
-    glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
-    glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
-
-    window = glfwCreateWindow(width, height, name.c_str(), nullptr, nullptr);
-
-    // Make the window's context current
-    glfwMakeContextCurrent(window);
-}
-
+// MAIN ------------------------------------------------------------------------
 int main()
 {
     // Initialize Main Window
-    initWindow("Vulkan Test App", 1440, 900);
+    if (!initWindow(sg_pWindow, "Vulkan Test App", 1440, 900))
+    {
+        cout << "ERROR: Can't initialize the Main Window" << endl;
+        return EXIT_FAILURE;
+    }
 
     //--------------------------------------------------------------------------
     //// Vulkan extensions check
@@ -77,8 +68,9 @@ int main()
     cout << endl;
 
     // Initialize Vulkan Renderer instance
-    if (EXIT_FAILURE == vulkanRenderer.init(window))
+    if (EXIT_FAILURE == sg_vulkanRenderer.init(sg_pWindow))
     {
+        cout << "ERROR: Can't initialize the Vulkan Renderer" << endl;
         return EXIT_FAILURE;
     }
 
@@ -87,12 +79,13 @@ int main()
     float deltaTime = 0.0f;
     float lastTime = 0.0f;
 
-    // Main loop until window closed
-    while (!glfwWindowShouldClose(window))
+    // Main loop until sg_pWindow closed
+    while (!glfwWindowShouldClose(sg_pWindow))
     {
         /* Poll for and process events */
         glfwPollEvents();
 
+        //----------------------------------------------------------------------
         /* Update model */
         float now = static_cast<float>(glfwGetTime());
         deltaTime = now - lastTime;
@@ -101,17 +94,17 @@ int main()
         angle += 10.0f * deltaTime;
         if (angle > 360.0f) { angle -= 360.0f; }
 
-        vulkanRenderer.updateModel(glm::rotate(glm::mat4(1.0f), glm::radians(angle), glm::vec3(0.0f, 0.0f, 1.0f)));
-        /**/
+        sg_vulkanRenderer.updateModel(glm::rotate(glm::mat4(1.0f), glm::radians(angle), glm::vec3(0.0f, 0.0f, 1.0f)));
+        //----------------------------------------------------------------------
 
         /* Vulkan Draw current frame */
-        vulkanRenderer.draw();
+        sg_vulkanRenderer.draw();
     }
 
-    vulkanRenderer.cleanup();
+    sg_vulkanRenderer.cleanup();
 
-    // Destroy GLFW window and terminate (stop) GLFW
-    glfwDestroyWindow(window);
+    // Destroy GLFW sg_pWindow and terminate (stop) GLFW
+    glfwDestroyWindow(sg_pWindow);
     glfwTerminate();
 
     return EXIT_SUCCESS;

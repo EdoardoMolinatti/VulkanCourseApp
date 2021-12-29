@@ -24,6 +24,11 @@
 #include "Utilities.h"
 #include "VulkanValidation.h"
 
+using namespace Utilities;
+// Utilities::SwapchainImage, Utilities::SwapchainDetails, Utilities::QueueFamilyIndices,
+// Utilities::MAX_FRAME_DRAWS, Utilities::deviceExtensions, Utilities::createBuffer,
+// Utilities::getVersionString, Utilities::readFile;
+
 // Disable warning about Vulkan unscoped enums for this entire file
 #pragma warning( push )
 #pragma warning(disable : 26812) // The enum type * is unscoped. Prefer 'enum class' over 'enum'.
@@ -61,7 +66,7 @@ private:
     // - Main
     VkInstance                      m_pInstance = nullptr;
     VkDebugUtilsMessengerEXT        m_debugMessenger = 0U;
-    struct {
+    struct VK_DEVICE {
         VkPhysicalDevice    physicalDevice = nullptr;
         VkDevice            logicalDevice = nullptr;
     }                               m_mainDevice;
