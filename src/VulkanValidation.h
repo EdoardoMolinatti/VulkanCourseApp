@@ -139,7 +139,8 @@ public:
         //}
 
         return VK_FALSE;
-        // The callback returns a boolean that indicates if the Vulkan call that triggered the validation layer message should be aborted.
+        // The callback returns a boolean that indicates if the Vulkan call that triggered the validation layer
+        // message should be aborted.
         // If the callback returns VK_TRUE, then the call is aborted with the VK_ERROR_VALIDATION_FAILED_EXT error.
         // This is normally only used to test the validation layers themselves, so you should always return VK_FALSE.
     }

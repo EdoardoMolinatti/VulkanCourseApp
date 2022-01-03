@@ -25,9 +25,9 @@
 #include "VulkanValidation.h"
 
 using namespace Utilities;
-// Utilities::SwapchainImage, Utilities::SwapchainDetails, Utilities::QueueFamilyIndices,
-// Utilities::MAX_FRAME_DRAWS, Utilities::deviceExtensions, Utilities::createBuffer,
-// Utilities::getVersionString, Utilities::readFile;
+// Utilities::SwapchainImage,   Utilities::SwapchainDetails, Utilities::QueueFamilyIndices,
+// Utilities::MAX_FRAME_DRAWS,  Utilities::deviceExtensions, Utilities::createBuffer,
+// Utilities::getVersionString, Utilities::readBinaryFile;
 
 // Disable warning about Vulkan unscoped enums for this entire file
 #pragma warning( push )

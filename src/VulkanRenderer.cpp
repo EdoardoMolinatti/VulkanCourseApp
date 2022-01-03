@@ -1,5 +1,8 @@
 #include "VulkanRenderer.h"
 
+#include <chrono>
+#include <thread>
+
 using std::cout;
 using std::endl;
 
@@ -112,6 +115,7 @@ void VulkanRenderer::draw()
     // Check if the window is iconified
     if (glfwGetWindowAttrib(m_pWindow, GLFW_ICONIFIED))
     {
+        std::this_thread::sleep_for(std::chrono::milliseconds(17)); // 60fps => (1000 / 60 = 16.66667 ms)
         return;
     }
 
@@ -263,7 +267,7 @@ void VulkanRenderer::createInstance()
         createInfo.enabledLayerCount = static_cast<uint32_t>(g_validationLayers.size());
         createInfo.ppEnabledLayerNames = g_validationLayers.data();
         cout    << "Added options to create " << createInfo.enabledLayerCount
-                    << " Validation Layer" << ((createInfo.enabledLayerCount > 1) ? "s." : ".") << endl;
+                << " Validation Layer" << ((createInfo.enabledLayerCount > 1) ? "s." : ".") << endl;
 
         // We do this to be able to debug also vkCreateInstance() and vkDestroyInstance()
         VulkanValidation::populateDebugMessengerCreateInfo(debugCreateInfo);
@@ -552,9 +556,9 @@ void VulkanRenderer::createDescriptorSetLayout()
 void VulkanRenderer::createGraphicsPipeline()
 {
     // TODO: compile shaders in another ad hoc method and call it just in debug configuration
-    // Read in SPIR-V code of shaders
-    auto vertexShaderCode = readFile("Shaders/vert.spv");
-    auto fragmentShaderCode = readFile("Shaders/frag.spv");
+    // Read in the SPIR-V binary code of the shaders
+    auto vertexShaderCode = readBinaryFile("Shaders/vert.spv");
+    auto fragmentShaderCode = readBinaryFile("Shaders/frag.spv");
 
     // |A| Create Shader Modules (ALWAYS keep sure to destroy them to avoid memory leaks)
     VkShaderModule vertexShaderModule = createShaderModule(vertexShaderCode);

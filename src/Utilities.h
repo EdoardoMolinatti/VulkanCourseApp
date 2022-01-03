@@ -1,13 +1,14 @@
 #ifndef UTILITIES_H
 #define UTILITIES_H
 
-// Defines for C++ ISO Standards            (https://en.wikipedia.org/wiki/C%2B%2B for a list of standards)
-#define __cpp_1997 199711L      // C++98
-#define __cpp_2003 __cpp_1997   // C++03    (this was a TC - Technical Corrigendum of the standard, not a new release)
-#define __cpp_2011 201103L      // C++11
-#define __cpp_2014 201402L      // C++14
-#define __cpp_2017 201703L      // C++17
-#define __cpp_2020 202002L      // C++20
+// Defines for C++ ISO Standards        (https://en.wikipedia.org/wiki/C%2B%2B for a list of standards)
+constexpr auto __cpp_1997 = 199711L;    // C++98
+constexpr auto __cpp_2003 = __cpp_1997; // C++03    (this was a TC - Technical Corrigendum of the standard, not a new release)
+constexpr auto __cpp_2011 = 201103L;    // C++11
+constexpr auto __cpp_2014 = 201402L;    // C++14
+constexpr auto __cpp_2017 = 201703L;    // C++17
+constexpr auto __cpp_2020 = 202002L;    // C++20
+//constexpr auto __cpp_2023 = 202303L;    // C++23
 // https://stackoverflow.com/questions/11053960/how-are-the-cplusplus-directive-defined-in-various-compilers#answer-11054055
 // |!| Important Note: VisualStudio needs the string "/Zc:__cplusplus" to be defined in
 // "Project Properties" -> "C/C++" -> "Command Line" ("Additional Options" pane) for All Configurations (Debug, Release, etc.).
@@ -92,8 +93,8 @@ namespace Utilities
         // Register iconify callback
         glfwSetWindowIconifyCallback(pWindow, glfwIconifiedWindowCbk);
 
-        // Make the window's context current
-        glfwMakeContextCurrent(pWindow);
+        // Make the window's context current (this only works for OpenGL contexts)
+        //glfwMakeContextCurrent(pWindow);
 
         return true;
     }
@@ -141,7 +142,7 @@ namespace Utilities
     };
 
     // Read binary file
-    static std::vector<char> readFile(const std::string& filename)
+    static std::vector<char> readBinaryFile(const std::string& filename)
     {
         // Open stream from given file
         // std::ios::binary tells stream to read file as binary
