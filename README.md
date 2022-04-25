@@ -1,6 +1,7 @@
 # VulkanCourseApp
 
-Application built during the [Vulkan Course](https://www.udemy.com/course/learn-the-vulkan-api-with-cpp/) on [Udemy](https://www.udemy.com/).
+Application built during the [Vulkan Course](https://www.udemy.com/course/learn-the-vulkan-api-with-cpp/)
+on [Udemy](https://www.udemy.com/).
 
 ## Prerequisites
 
@@ -8,15 +9,15 @@ Application built during the [Vulkan Course](https://www.udemy.com/course/learn-
    (whatever _path_ you choose is perfectly ok)
 2. Download and extract* [GLFW](https://www.glfw.org/download.html) (Open**GL** **F**rame**W**ork)<br />
   _Please ensure to extract the **64bit** version to the "**Libraries**" path and rename the main folder to **GLFW**_<br />
-  _Please ensure to extract the **32bit** version to the "**Libraries**" path and rename the main folder to **GLFW32** (if needed)_
+  _Please ensure to extract the **32bit** version to the "**Libraries**" path and rename the main folder to **GLFW32**_
 3. Download and extract* [GLM](https://github.com/g-truc/glm/releases) (Open**GL** **M**athematics)<br />
   _Please ensure to extract it to the "**Libraries**" _path_ and rename the main folder to **GLM**_
-4.
-   Note: this step is OPTIONAL (if you don't want to use the **Boost** libraries you shall provide alternative methods
-   and/or comment the few )
+4. *Note:* this step is OPTIONAL (if you don't want to use the **Boost** libraries you shall provide alternative methods
+   and/or comment the few lines using the Boost libraries).
+   Download and extract the [Boost C++](https://www.boost.org/) libraries under the "**Libraries**" _path_ and rename the main folder to **BOOST_ROOT**.
 
-\* That folder must be at the same level of the main project folder, and it shall be called "**Libraries**".<br />
-&nbsp;&nbsp;&nbsp;It will be searched with this relative _path_ (in VS project properties): "`$(SolutionDir)../Libraries/`"
+\* That folder must be inside the main project folder, and it shall be called "**Libraries**".<br />
+&nbsp;&nbsp;&nbsp;It will be searched with this relative _path_ (in VS project properties): "`$(SolutionDir)/Libraries/`"
 
 ### Using symbolic links (instead of _renaming_ the extracted library folders)
 
@@ -42,10 +43,3 @@ You should verify or setup your system to have defined the following environment
   So you can just check that it's present under your **system** _environment variables_
   (default: `VULKAN_SDK` => `C:\VulkanSDK\1.2.198.1`)<br />
   N.B.: please note that the **path** _doesn't end_ with a backslash ("\\")
-
-- **BOOST_ROOT** - This one could be created (under **system** or **user** _environemt variables_, your choice).<br />
-  If created, it must point to the path where you extracted the [Boost](https://www.boost.org/) libraries
-  (e.g. "`[...]\Libraries\boost_1_78_0`").<br />
-  N.B.: it's preferable that the **path** _doesn't end_ with a backslash ("\\")<br /><br />
-  *Alternative*: You can create a **symbolic link** (also called "BOOST_ROOT") in the "**Libraries**" folder,<br />
-  pointing to the installation/extraction _path_ of the **Boost** libraries in your system.

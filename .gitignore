@@ -42,5 +42,10 @@ Release/**
 # Visual Studio Code
 **/.vscode/**
 
+# Libraries
+# (it could be a symbolic link to an external folder, hence the two different ignores)
+Libraries/**
+**/Libraries
+
 # Compiled Shaders (SPIR-V) https://www.khronos.org/api/spir
 **/*.spv
