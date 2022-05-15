@@ -2,16 +2,17 @@
 #define UTILITIES_H
 
 // Defines for C++ ISO Standards        (https://en.wikipedia.org/wiki/C%2B%2B for a list of standards)
-constexpr auto __cpp_1997 = 199711L;    // C++98
-constexpr auto __cpp_2003 = __cpp_1997; // C++03    (this was a TC - Technical Corrigendum of the standard, not a new release)
+constexpr auto __cpp_1998 = 199711L;    // C++98
+constexpr auto __cpp_2003 = __cpp_1998; // C++03    (this was a TC - Technical Corrigendum of the standard, not a new release)
 constexpr auto __cpp_2011 = 201103L;    // C++11
 constexpr auto __cpp_2014 = 201402L;    // C++14
 constexpr auto __cpp_2017 = 201703L;    // C++17
 constexpr auto __cpp_2020 = 202002L;    // C++20
 //constexpr auto __cpp_2023 = 202303L;    // C++23
 // https://stackoverflow.com/questions/11053960/how-are-the-cplusplus-directive-defined-in-various-compilers#answer-11054055
-// |!| Important Note: VisualStudio needs the string "/Zc:__cplusplus" to be defined in
-// "Project Properties" -> "C/C++" -> "Command Line" ("Additional Options" pane) for All Configurations (Debug, Release, etc.).
+// ⚠ Important Note: VisualStudio needs the string "/Zc:__cplusplus" to be defined in
+// "Project Properties" -> "C/C++" -> "Command Line" ("Additional Options" pane)
+// for All Configurations (Debug, Release, etc.) and all Architectures (x86, x64, etc.).
 // https://docs.microsoft.com/en-us/cpp/build/reference/zc-cplusplus?view=msvc-160
 
 // Disable warning about Vulkan unscoped enums for this entire file
@@ -26,15 +27,35 @@ constexpr auto __cpp_2020 = 202002L;    // C++20
 #include <iostream>
 #include <fstream>
 #if __cplusplus >= __cpp_2017
-#include <filesystem>           // Since C++17 - std::filesystem
+    #include <filesystem>           // Since C++17 - std::filesystem
+#else
+    #ifdef _WIN32
+        #include <direct.h>
+        #define GetCurrentDir _getcwd
+    #else
+        #include <unistd.h>
+        #define GetCurrentDir getcwd
+    #endif
+    #include <stdio.h>
 #endif
 #include <string>
 #include <vector>
 
-using std::cout, std::endl;
-
 // GLM
 #include <glm/glm.hpp>
+
+using std::cout, std::endl;
+
+// Other constant expressions
+constexpr uint32_t          WIN_DEFAULT_WIDTH = 1024;
+constexpr uint32_t          WIN_DEFAULT_HEIGHT = 768;
+#if __cplusplus >= __cpp_2017
+#include <string_view>
+constexpr std::string_view  WIN_DEFAULT_TITLE = "Test Window";
+#else
+constexpr char              WIN_DEFAULT_TITLE[] = "Test Window";
+#endif
+
 
 namespace Utilities
 {
@@ -63,7 +84,8 @@ namespace Utilities
     }
 
     // Initialize Window
-    static bool initWindow(GLFWwindow* &pWindow, std::string name = "Test Window", const int width = 1024, const int height = 768)
+    static bool initWindow( GLFWwindow* &pWindow, std::string name = std::string(WIN_DEFAULT_TITLE),
+                            const int width = WIN_DEFAULT_WIDTH, const int height = WIN_DEFAULT_HEIGHT)
     {
         // Register error callback before initialization
         glfwSetErrorCallback(glfwErrorCbk);
@@ -116,7 +138,8 @@ namespace Utilities
     };
 
     // Indices (locations) of Queue Families (if they exist at all)
-    struct QueueFamilyIndices {
+    struct QueueFamilyIndices
+    {
         int graphicsFamily = -1;        // Location of Graphics Queue Family
         int presentationFamily = -1;    // Location of Presentation Queue Family
         int transferFamily = -1;        // N.B.: Vulkan guarantees that graphicsFamily also supports Transfer Queues
@@ -129,14 +152,16 @@ namespace Utilities
     };
 
     // Swap Chain detailed information
-    struct SwapchainDetails {
+    struct SwapchainDetails
+    {
         VkSurfaceCapabilitiesKHR        surfaceCapabilities = {};   // Surface properties (image, size, extent, etc.)
         std::vector<VkSurfaceFormatKHR> formats;                    // Surface image formats
         std::vector<VkPresentModeKHR>   presentationModes;          // Presentation mode (how images should be presented to the surface - i.e. screen)
     };
 
     // Swap Chain image
-    struct SwapchainImage {
+    struct SwapchainImage
+    {
         VkImage     image;
         VkImageView imageView;
     };
@@ -282,7 +307,8 @@ namespace Utilities
         vkFreeCommandBuffers(device, transferCommandPool, 1, &transferCommandBuffer);
     }
 
-    static std::string getVersionString(uint32_t versionBitmask) {
+    static std::string getVersionString(uint32_t versionBitmask)
+    {
         static const int MAX_STR_LENGTH = 64;
         char versionString[MAX_STR_LENGTH];
 
@@ -310,8 +336,14 @@ namespace Utilities
         std::filesystem::path cwd = std::filesystem::current_path();
         return cwd.string();
 #else
-        // TODO: Use an alternative (N.B.: Boost filesystem must be compiled)
-        return "";
+        char buff[FILENAME_MAX]; //create string buffer to hold path
+        char* pRetVal = GetCurrentDir(buff, FILENAME_MAX);
+        if (NULL == pRetVal)
+        {
+            cout << "Error getting the Current Working Directory path! Out of Memory?" << endl;
+            return std::string("");
+        }
+        return std::string(buff);
 #endif
     }
 

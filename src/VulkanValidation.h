@@ -51,10 +51,12 @@ public:
         VkDebugUtilsMessengerEXT*                   pDebugMessenger)
     {
         auto func = (PFN_vkCreateDebugUtilsMessengerEXT)vkGetInstanceProcAddr(instance, "vkCreateDebugUtilsMessengerEXT");
-        if (func != nullptr) {
+        if (func != nullptr)
+        {
             return func(instance, pCreateInfo, pAllocator, pDebugMessenger);
         }
-        else {
+        else
+        {
             return VK_ERROR_EXTENSION_NOT_PRESENT;
         }
     }
@@ -64,7 +66,8 @@ public:
         const VkAllocationCallbacks*    pAllocator)
     {
         auto func = (PFN_vkDestroyDebugUtilsMessengerEXT)vkGetInstanceProcAddr(instance, "vkDestroyDebugUtilsMessengerEXT");
-        if (func != nullptr) {
+        if (func != nullptr)
+        {
             func(instance, debugMessenger, pAllocator);
         }
     }
@@ -81,7 +84,8 @@ public:
                     |   VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT;
         messageType     VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT
                       | VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT;
-        struct VkDebugUtilsMessengerCallbackDataEXT {
+        struct VkDebugUtilsMessengerCallbackDataEXT
+        {
             VkStructureType                             sType;
             const void*                                 pNext;
             VkDebugUtilsMessengerCallbackDataFlagsEXT   flags;
@@ -100,41 +104,45 @@ public:
         std::string message = std::string(pCallbackData->pMessage);
 
         // ERROR
-        if (messageSeverity == VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT)
+        if (messageSeverity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT)
         {
             std::vector<std::string> tokens;
-            boost::split(tokens, message, [](char sep) {return sep == '|'; });
+            boost::split(tokens, message, [](char sep) { return sep == '|'; });
 
             std::cerr << std::endl << "Message ID Name: '" << messageIdName << "'" << std::endl;
             if (tokens.size() == 3)
             {
                 std::cerr << "[ERROR]" << tokens[2] << std::endl;
             }
-            else {
+            else
+            {
                 std::cerr << "[ERROR] " << message << std::endl;
             }
         }
         // WARNING
-        else if (messageSeverity == VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT)
+        else if (messageSeverity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT)
         {
             std::vector<std::string> tokens;
-            boost::split(tokens, message, [](char sep) {return sep == '|'; });
+            boost::split(tokens, message, [](char sep) { return sep == '|'; });
 
             std::cerr << std::endl << "Message ID Name: '" << messageIdName << "'" << std::endl;
             if (tokens.size() == 3)
             {
                 std::cerr << "[WARN ]" << tokens[2] << std::endl;
             }
-            else {
+            else
+            {
                 std::cerr << "[WARN ] " << message << std::endl;
             }
         }
         // INFO
-        else if (messageSeverity == VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT) {
+        else if (messageSeverity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT)
+        {
             std::cout << "[INFO ] " << message << std::endl;
         }
         // VERBOSE
-        //else if (messageSeverity == VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT) {
+        //else if (messageSeverity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT)
+        //{
         //    std::cout << "[VERBOSE] " << message << std::endl;
         //}
 

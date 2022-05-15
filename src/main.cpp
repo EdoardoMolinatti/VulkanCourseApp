@@ -28,8 +28,33 @@ constexpr auto TEST_GLM         = 0;
 // MAIN ------------------------------------------------------------------------
 int main()
 {
-    // C++ compiler version check
-    cout << "C++ Compiler version: " << __cplusplus << " [YYYYMM] (C++11, C++14, C++17, C++20, C++23)" << endl;
+    // C++ compiler version check (it's in _MSVC_LANG if "/Zc:__cplusplus" isn't defined in the project)
+    cout << "C++ Compiler version: " << __cplusplus << " [YYYYMM]";
+    switch (__cplusplus)
+    {
+    case __cpp_1998:
+    //case __cpp_2003:
+        cout << " (C++98/C++03)" << std::endl;
+        break;
+    case __cpp_2011:
+        cout << " (C++11)" << std::endl;
+        break;
+    case __cpp_2014:
+        cout << " (C++14)" << std::endl;
+        break;
+    case __cpp_2017:
+        cout << " (C++17)" << std::endl;
+        break;
+    case __cpp_2020:
+        cout << " (C++20)" << std::endl;
+        break;
+    //case __cpp_2023:
+    //    cout << " (C++23)" << std::endl;
+    //    break;
+    default:
+        cout << " (C++??)" << std::endl;
+        break;
+    }
     // Current Working Directory
     cout << "Current Working Directory: '" << getCurrentWorkingDirectory() << "'" << endl;
     //
@@ -52,7 +77,8 @@ int main()
                 // populate extensions buffer
                 VkResult vkRes = vkEnumerateInstanceExtensionProperties(nullptr, &extensionsCount, extensions.data());
             } while (vkRes == VK_INCOMPLETE);
-            for (auto& extension : extensions) {
+            for (auto& extension : extensions)
+            {
                 cout << "   Name: " << extension.extensionName << endl;
                 cout << "Version: " << extension.specVersion << endl;
             }
@@ -128,7 +154,10 @@ int main()
         lastTime = now;
 
         angle += 10.0f * deltaTime;
-        if (angle > 360.0f) { angle -= 360.0f; }
+        if (angle > 360.0f)
+        {
+            angle -= 360.0f;
+        }
 
         sg_vulkanRenderer.updateModel(glm::rotate(glm::mat4(1.0f), glm::radians(angle), glm::vec3(0.0f, 0.0f, 1.0f)));
         //----------------------------------------------------------------------

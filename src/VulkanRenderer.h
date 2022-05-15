@@ -56,17 +56,19 @@ private:
     std::vector<Mesh>               m_meshList;
 
     // Scene Settings
-    struct MVP {
+    struct MVP
+    {
         glm::mat4 projection;
         glm::mat4 view;
         glm::mat4 model;
-    }                               m_mvp;                  // Model-View-Projection matrices
+    }                               m_mvp;                  // Model-View-Projection matrices. ⚠ Order is fundamental
 
     // Vulkan Components
     // - Main
     VkInstance                      m_pInstance = nullptr;
     VkDebugUtilsMessengerEXT        m_debugMessenger = 0U;
-    struct VK_DEVICE {
+    struct VK_DEVICE
+    {
         VkPhysicalDevice    physicalDevice = nullptr;
         VkDevice            logicalDevice = nullptr;
     }                               m_mainDevice;

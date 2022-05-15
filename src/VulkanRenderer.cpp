@@ -223,7 +223,8 @@ void VulkanRenderer::cleanup()
 
     vkDestroyDevice(m_mainDevice.logicalDevice, nullptr);
 
-    if (sg_validationEnabled) {
+    if (sg_validationEnabled)
+    {
         VulkanValidation::destroyDebugUtilsMessengerEXT(m_pInstance, m_debugMessenger, nullptr);
     }
 
@@ -303,10 +304,11 @@ void VulkanRenderer::createDebugMessenger()
     // Only create callback if validation enabled
     if (!sg_validationEnabled) return;
 
-    VkDebugUtilsMessengerCreateInfoEXT createInfo{};
+    VkDebugUtilsMessengerCreateInfoEXT createInfo {};
     VulkanValidation::populateDebugMessengerCreateInfo(createInfo);
 
-    if (VulkanValidation::createDebugUtilsMessengerEXT(m_pInstance, &createInfo, nullptr, &m_debugMessenger) != VK_SUCCESS) {
+    if (VulkanValidation::createDebugUtilsMessengerEXT(m_pInstance, &createInfo, nullptr, &m_debugMessenger) != VK_SUCCESS)
+    {
         throw std::runtime_error("Failed to set up Debug messenger!");
     }
 }
@@ -988,7 +990,7 @@ void VulkanRenderer::recordCommands()
                 for (size_t meshIdx = 0; meshIdx < m_meshList.size(); meshIdx++)
                 {
                     // Bind mesh Vertex buffers
-                    VkBuffer vertexBuffers[] = { m_meshList[meshIdx].getVertexBuffer() };             // Buffers to bind
+                    VkBuffer vertexBuffers[] = { m_meshList[meshIdx].getVertexBuffer() };       // Buffers to bind
                     VkDeviceSize offsets[] = { 0 };                                             // Offsets into buffers being bound
                     vkCmdBindVertexBuffers(m_commandBuffers[i], 0, 1, vertexBuffers, offsets);  // Command to bind vertex buffer before drawing with them
 
@@ -1064,7 +1066,8 @@ bool VulkanRenderer::checkInstanceExtensionSupport(std::vector<const char*>* ext
         }
         while (vkRes == VK_INCOMPLETE);
         //cout << endl;
-        //for (auto &extension : extensions) {
+        //for (auto &extension : extensions)
+        //{
         //    cout << "   Name: " << extension.extensionName << endl;
         //    cout << "Version: " << extension.specVersion << endl;
         //}
@@ -1209,7 +1212,8 @@ std::vector<const char*> VulkanRenderer::getRequiredInstanceExtensions()
     std::vector<const char*> extensions(glfwExtensionNames, glfwExtensionNames + glfwExtensionCount);
 
     // Add also the Instance Extension required by Validation Layers, if requested
-    if (sg_validationEnabled) {
+    if (sg_validationEnabled)
+    {
         extensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
     }
 
