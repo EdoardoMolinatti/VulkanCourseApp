@@ -7,17 +7,17 @@ on [Udemy](https://www.udemy.com/).
 
 1. Install the [**Vulkan SDK**](https://vulkan.lunarg.com/sdk/home) by [LunarG](https://www.lunarg.com/) on your system
    (whatever _path_ you choose is perfectly ok)
-2. Download and extract* [GLFW](https://www.glfw.org/download.html) (Open**GL** **F**rame**W**ork)<br />
+2. Download and extract\* [GLFW](https://www.glfw.org/download.html) (Open**GL** **F**rame**W**ork)<br />
   _Please ensure to extract the **64bit** version to the "**Libraries**" path and rename the main folder to **GLFW**_<br />
   _Please ensure to extract the **32bit** version to the "**Libraries**" path and rename the main folder to **GLFW32**_
-3. Download and extract* [GLM](https://github.com/g-truc/glm/releases) (Open**GL** **M**athematics)<br />
-  _Please ensure to extract it to the "**Libraries**" _path_ and rename the main folder to **GLM**_
-4. *Note:* this step is OPTIONAL (if you don't want to use the **Boost** libraries you shall provide alternative methods
-   and/or comment the few lines using the Boost libraries).
-   Download and extract the [Boost C++](https://www.boost.org/) libraries under the "**Libraries**" _path_ and rename the main folder to **BOOST_ROOT**.
+3. Download and extract\* [GLM](https://github.com/g-truc/glm/releases) (Open**GL** **M**athematics)<br />
+  _Please ensure to extract it to the "**Libraries**" path and rename the main folder to **GLM**_
+4. OPTIONAL (if you don't want to use the **Boost** libraries you shall provide alternative methods
+   and/or comment the few lines of code that uses the Boost libraries).<br />
+   Download and extract\* the [Boost C++](https://www.boost.org/) libraries under the "**Libraries**" _path_ and rename the main folder to **BOOST_ROOT**.
 
 \* That folder must be inside the main project folder, and it shall be called "**Libraries**".<br />
-&nbsp;&nbsp;&nbsp;It will be searched with this relative _path_ (in VS project properties): "`$(SolutionDir)/Libraries/`"
+&nbsp;&nbsp;&nbsp;It will be searched with this relative _path_ (in VS project properties): "`$(SolutionDir)/Libraries/`"<br /><br />
 
 ### Using symbolic links (instead of _renaming_ the extracted library folders)
 
@@ -32,14 +32,15 @@ with [**Administrator** privileges](https://allthings.how/how-to-open-windows-te
 ```
 [...]\Libraries> mklink /D GLM glm_0.9.9.8
 ```
-_output: `symbolic link created for GLM <<===>> glm_0.9.9.8`_<br />
+_output: `symbolic link created for GLM <<===>> glm_0.9.9.8`_<br /><br />
 
 ## Environment Variables
 
-You should verify or setup your system to have defined the following environment variables
+You should verify to have defined the following environment variables
 (you can help yourself by installing [Rapid Environment Editor](https://www.rapidee.com/)):
 
-- **VULKAN_SDK** - This one should already exist (it should be created by the **Vulkan SDK** installer).<br />
+- **VULKAN_SDK** - This should already exist (it should be created by the **Vulkan SDK** installer).<br />
   So you can just check that it's present under your **system** _environment variables_
-  (default: `VULKAN_SDK` => `C:\VulkanSDK\1.2.198.1`)<br />
-  N.B.: please note that the **path** _doesn't end_ with a backslash ("\\")
+  (default: `VULKAN_SDK` => `C:\VulkanSDK\1.2.198.1`) and it points to the correct _path_.<br />
+  Please note that your VulkanSDK version might be more recent.<br />
+  N.B.: note that the **path** _doesn't end_ with a backslash ("\\").<br />

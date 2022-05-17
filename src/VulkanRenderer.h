@@ -41,6 +41,7 @@ public:
 
     // API
     int         init(GLFWwindow * newWindow);
+    bool        isWindowIconified();
     
     void        updateModel(glm::mat4 newModel);
 

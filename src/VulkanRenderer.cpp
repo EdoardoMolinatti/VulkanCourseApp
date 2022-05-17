@@ -46,8 +46,9 @@ int VulkanRenderer::init(GLFWwindow* newWindow)
         //------------------------------
         // Model-View-Projection setup
         //------------------------------
-        m_mvp.projection = glm::perspective(glm::radians(45.0f), (float)m_swapChainExtent.width / (float)m_swapChainExtent.height, 0.1f, 100.0f);
-        //                                               FOV-Y ,                          Aspect Ratio                           ,zNear, zFar
+        m_mvp.projection = glm::perspective(
+            glm::radians(45.0f), static_cast<float>(m_swapChainExtent.width) / static_cast<float>(m_swapChainExtent.height), 0.1f, 100.0f);
+        //               FOV-Y ,                                       Aspect Ratio                                        ,zNear, zFar
         m_mvp.view = glm::lookAt(glm::vec3(0.0f, 0.0f, 2.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
         //                                 Eye              ,           Center           ,           Up
         m_mvp.model = glm::mat4(1.0f);
@@ -105,6 +106,15 @@ int VulkanRenderer::init(GLFWwindow* newWindow)
     return EXIT_SUCCESS;
 }
 //------------------------------------------------------------------------------
+bool VulkanRenderer::isWindowIconified()
+{
+    if (glfwGetWindowAttrib(m_pWindow, GLFW_ICONIFIED))
+    {
+        return true;
+    }
+    return false;
+}
+//------------------------------------------------------------------------------
 void VulkanRenderer::updateModel(glm::mat4 newModel)
 {
     m_mvp.model = newModel;
@@ -115,7 +125,7 @@ void VulkanRenderer::draw()
     // Check if the window is iconified
     if (glfwGetWindowAttrib(m_pWindow, GLFW_ICONIFIED))
     {
-        std::this_thread::sleep_for(std::chrono::milliseconds(17)); // 60fps => (1000 / 60 = 16.66667 ms)
+        std::this_thread::sleep_for(std::chrono::milliseconds(16)); // 60fps => (1000 / 60 = 16.66667 ms)
         return;
     }
 
@@ -184,19 +194,20 @@ void VulkanRenderer::cleanup()
     vkDestroyDescriptorPool(m_mainDevice.logicalDevice, m_descriptorPool, nullptr);
     vkDestroyDescriptorSetLayout(m_mainDevice.logicalDevice, m_descriptorSetLayout, nullptr);
     // Destroy Uniform Buffers and free related memory
-    for (size_t i = 0; i < m_uniformBuffer.size(); i++)
+    for (size_t i = 0; i < m_uniformBuffer.size(); ++i)
     {
         vkDestroyBuffer(m_mainDevice.logicalDevice, m_uniformBuffer[i], nullptr);
         vkFreeMemory(m_mainDevice.logicalDevice, m_uniformBufferMemory[i], nullptr);
     }
 
     // Destroy Meshes
-    for (size_t i = 0; i < m_meshList.size(); i++)
+    for (size_t i = 0; i < m_meshList.size(); ++i)
     {
         m_meshList[i].destroyBuffers();
     }
 
-    for (size_t i = 0; i < MAX_FRAME_DRAWS; i++)
+    // Destroy Synchronization structures
+    for (size_t i = 0; i < MAX_FRAME_DRAWS; ++i)
     {
         vkDestroySemaphore(m_mainDevice.logicalDevice, m_renderFinished[i], nullptr);
         vkDestroySemaphore(m_mainDevice.logicalDevice, m_imageAvailable[i], nullptr);
@@ -205,15 +216,18 @@ void VulkanRenderer::cleanup()
 
     vkDestroyCommandPool(m_mainDevice.logicalDevice, m_graphicsCommandPool, nullptr);
 
+    // Destroy Swapchain buffers
     for (auto framebuffer : m_swapChainFramebuffers)
     {
         vkDestroyFramebuffer(m_mainDevice.logicalDevice, framebuffer, nullptr);
     }
 
+    // Destroy Pipeline and RenderPass
     vkDestroyPipeline(m_mainDevice.logicalDevice, m_graphicsPipeline, nullptr);
     vkDestroyPipelineLayout(m_mainDevice.logicalDevice, m_pipelineLayout, nullptr);
     vkDestroyRenderPass(m_mainDevice.logicalDevice, m_renderPass, nullptr);
 
+    // Destroy the image views, Swapchain and Surface
     for (auto &image : m_swapchainImages)
     {
         vkDestroyImageView(m_mainDevice.logicalDevice, image.imageView, nullptr);
@@ -221,6 +235,7 @@ void VulkanRenderer::cleanup()
     vkDestroySwapchainKHR(m_mainDevice.logicalDevice, m_swapChain, nullptr);
     vkDestroySurfaceKHR(m_pInstance, m_surface, nullptr);
 
+    // Destroy the Vulkan Device
     vkDestroyDevice(m_mainDevice.logicalDevice, nullptr);
 
     if (sg_validationEnabled)
@@ -228,6 +243,7 @@ void VulkanRenderer::cleanup()
         VulkanValidation::destroyDebugUtilsMessengerEXT(m_pInstance, m_debugMessenger, nullptr);
     }
 
+    // Finally, destroy the Vulkan Instance
     vkDestroyInstance(m_pInstance, nullptr);
 }
 
@@ -537,9 +553,10 @@ void VulkanRenderer::createDescriptorSetLayout()
     VkDescriptorSetLayoutBinding mvpLayoutBinding = {};
     mvpLayoutBinding.binding = 0;                                           // Binding point in shader (designated by binding number in shader)
     mvpLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;    // Type of descriptor (uniform, dynamic uniform, image sampler, etc)
-    mvpLayoutBinding.descriptorCount = 1;                                   // Number of descriptors for binding
-    mvpLayoutBinding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;               // Shader stage to bind to
+    mvpLayoutBinding.descriptorCount = 1;                                   // Number of descriptors (in the shader) for binding
+    mvpLayoutBinding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;               // Shader stage to bind to (vertex shader in this case)
     mvpLayoutBinding.pImmutableSamplers = nullptr;                          // For Texture: Can make sampler data unchangeable (immutable) by specifying in layout
+    //mvpLayoutBinding.stageFlags = VK_...
 
     // Create Descriptor Set Layout with given bindings
     VkDescriptorSetLayoutCreateInfo layoutCreateInfo = {};
@@ -767,7 +784,7 @@ void VulkanRenderer::createFramebuffers()
     m_swapChainFramebuffers.resize(m_swapchainImages.size());
 
     // Create a framebuffer for each swap chain image
-    for (size_t i = 0; i < m_swapChainFramebuffers.size(); i++)
+    for (size_t i = 0; i < m_swapChainFramebuffers.size(); ++i)
     {
         std::array<VkImageView, 1> attachments = {
             m_swapchainImages[i].imageView
@@ -844,7 +861,7 @@ void VulkanRenderer::createSynchronisation()
     fenceCreateInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
     fenceCreateInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;           // This one should start signaled (open)
 
-    for (size_t i = 0; i < MAX_FRAME_DRAWS; i++)
+    for (size_t i = 0; i < MAX_FRAME_DRAWS; ++i)
     {
         if (vkCreateSemaphore(m_mainDevice.logicalDevice, &semaphoreCreateInfo, nullptr, &m_imageAvailable[i]) != VK_SUCCESS ||
             vkCreateSemaphore(m_mainDevice.logicalDevice, &semaphoreCreateInfo, nullptr, &m_renderFinished[i]) != VK_SUCCESS ||
@@ -866,7 +883,7 @@ void VulkanRenderer::createUniformBuffers()
     m_uniformBufferMemory.resize(m_swapchainImages.size());
 
     // Create Uniform buffers
-    for (size_t i = 0; i < m_swapchainImages.size(); i++)
+    for (size_t i = 0; i < m_swapchainImages.size(); ++i)
     {
         createBuffer(m_mainDevice.physicalDevice, m_mainDevice.logicalDevice, bufferSize, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
             VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, &m_uniformBuffer[i], &m_uniformBufferMemory[i]);
@@ -900,6 +917,7 @@ void VulkanRenderer::createDescriptorSets()
     // Resize Descriptor Set list so one for every uniform buffer
     m_descriptorSets.resize(m_uniformBuffer.size());
 
+    // Create a vector with all the same m_descriptorSetLayout (that will be used for each element by descriptor sets)
     std::vector<VkDescriptorSetLayout> setLayouts(m_uniformBuffer.size(), m_descriptorSetLayout);
 
     // Descriptor Set Allocation Info
@@ -917,7 +935,8 @@ void VulkanRenderer::createDescriptorSets()
     }
 
     // Update all of descriptor sets uniform buffer bindings
-    for (size_t i = 0; i < m_uniformBuffer.size(); i++)
+    assert(m_descriptorSets.size() == m_uniformBuffer.size());
+    for (size_t i = 0; i < m_uniformBuffer.size(); ++i)
     {
         // Buffer info and data offset info
         VkDescriptorBufferInfo mvpBufferInfo = {};
@@ -928,12 +947,12 @@ void VulkanRenderer::createDescriptorSets()
         // Data about connection between binding and buffer
         VkWriteDescriptorSet mvpSetWrite = {};
         mvpSetWrite.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-        mvpSetWrite.dstSet = m_descriptorSets[i];                           // Descriptor Set to update
-        mvpSetWrite.dstBinding = 0;                                         // Binding to update (matches with binding on layout/shader)
-        mvpSetWrite.dstArrayElement = 0;                                    // Index in array to update
-        mvpSetWrite.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;     // Type of descriptor
-        mvpSetWrite.descriptorCount = 1;                                    // Amount of descriptor set to update
-        mvpSetWrite.pBufferInfo = &mvpBufferInfo;                           // Information about buffer data to bind
+        mvpSetWrite.dstSet = m_descriptorSets[i];                       // Descriptor Set to update
+        mvpSetWrite.dstBinding = 0;                                     // Binding to update (matches with binding on layout/shader)
+        mvpSetWrite.dstArrayElement = 0;                                // Index in array to update
+        mvpSetWrite.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER; // Type of descriptor
+        mvpSetWrite.descriptorCount = 1;                                // Amount of descriptor set to update
+        mvpSetWrite.pBufferInfo = &mvpBufferInfo;                       // Information about buffer data to bind
 
         // Update the descriptor sets with new buffer/binding info
         vkUpdateDescriptorSets(m_mainDevice.logicalDevice, 1, &mvpSetWrite, 0, nullptr);
@@ -969,7 +988,7 @@ void VulkanRenderer::recordCommands()
     renderPassBeginInfo.pClearValues = clearValues;                         // List of clear values (TODO: Depth Attachment Clear Value)
     renderPassBeginInfo.clearValueCount = 1;
 
-    for (size_t i = 0; i < m_commandBuffers.size(); i++)
+    for (size_t i = 0; i < m_commandBuffers.size(); ++i)
     {
         renderPassBeginInfo.framebuffer = m_swapChainFramebuffers[i];
 
@@ -987,7 +1006,7 @@ void VulkanRenderer::recordCommands()
                 vkCmdBindPipeline(m_commandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, m_graphicsPipeline);
 
                 // Loop Mesh list
-                for (size_t meshIdx = 0; meshIdx < m_meshList.size(); meshIdx++)
+                for (size_t meshIdx = 0; meshIdx < m_meshList.size(); ++meshIdx)
                 {
                     // Bind mesh Vertex buffers
                     VkBuffer vertexBuffers[] = { m_meshList[meshIdx].getVertexBuffer() };       // Buffers to bind

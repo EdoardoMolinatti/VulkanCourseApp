@@ -204,7 +204,7 @@ namespace Utilities
         VkPhysicalDeviceMemoryProperties memoryProperties;
         vkGetPhysicalDeviceMemoryProperties(physicalDevice, &memoryProperties);
 
-        for (uint32_t i = 0; i < memoryProperties.memoryTypeCount; i++)
+        for (uint32_t i = 0; i < memoryProperties.memoryTypeCount; ++i)
         {
             if ((allowedTypes & (1 << i))                                                       // Index of memory type must match corresponding bit in allowedTypes
                 && (memoryProperties.memoryTypes[i].propertyFlags & properties) == properties)  // Desired property bit flags are part of memory type's property flags

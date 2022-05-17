@@ -3,9 +3,11 @@
 #include <GLFW/glfw3.h>
 
 // C++ STL
+#include <chrono>
 #include <iostream>
 #include <stdexcept>
 #include <string>
+#include <thread>
 #include <vector>
 
 using std::cout, std::endl;
@@ -147,32 +149,43 @@ int main()
         /* Poll for and process events */
         glfwPollEvents();
 
-        //----------------------------------------------------------------------
-        /* Update model */
-        float now = static_cast<float>(glfwGetTime());
-        deltaTime = now - lastTime;
-        lastTime = now;
-
-        angle += 10.0f * deltaTime;
-        if (angle > 360.0f)
+        if (sg_vulkanRenderer.isWindowIconified())
         {
-            angle -= 360.0f;
+            // Update the last time we got in this loop for the next frame
+            lastTime = static_cast<float>(glfwGetTime());
+
+            // Just sleep for 1 frame time if the window is iconified
+            std::this_thread::sleep_for(std::chrono::milliseconds(17));
         }
-
-        sg_vulkanRenderer.updateModel(glm::rotate(glm::mat4(1.0f), glm::radians(angle), glm::vec3(0.0f, 0.0f, 1.0f)));
-        //----------------------------------------------------------------------
-
-        try
+        else
         {
-            /* Vulkan Draw current frame */
-            sg_vulkanRenderer.draw();
+            //----------------------------------------------------------------------
+            /* Update the 3D Model */
+            float now = static_cast<float>(glfwGetTime());
+            deltaTime = now - lastTime;
+            lastTime = now;
 
-            ++frameNum;
-        }
-        catch (const std::exception& e)
-        {
-            cout << "RUNTIME ERROR: " << e.what() << endl;
-            return EXIT_FAILURE;
+            angle += 10.0f * deltaTime;
+            if (angle > 360.0f)
+            {
+                angle -= 360.0f;
+            }
+
+            sg_vulkanRenderer.updateModel(glm::rotate(glm::mat4(1.0f), glm::radians(angle), glm::vec3(0.0f, 0.0f, 1.0f)));
+            //----------------------------------------------------------------------
+
+            try
+            {
+                /* Vulkan Draw current frame */
+                sg_vulkanRenderer.draw();
+
+                ++frameNum;
+            }
+            catch (const std::exception& e)
+            {
+                cout << "RUNTIME ERROR: " << e.what() << endl;
+                return EXIT_FAILURE;
+            }
         }
     }
 
