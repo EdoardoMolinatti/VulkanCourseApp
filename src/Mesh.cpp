@@ -18,6 +18,18 @@ Mesh::Mesh( VkPhysicalDevice newPhysicalDevice, VkDevice newDevice,
     m_device = newDevice;
     createVertexBuffer(transferQueue, transferCommandPool, vertices);
     createIndexBuffer(transferQueue, transferCommandPool, indices);
+
+    m_uboModel.model = glm::mat4(1.0f);
+}
+
+UboModel Mesh::getModel()
+{
+    return m_uboModel;
+}
+
+void Mesh::setModel(glm::mat4 newModel)
+{
+    m_uboModel.model = newModel;
 }
 
 uint32_t Mesh::getVertexCount()

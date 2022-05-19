@@ -12,8 +12,8 @@
 #include <glm/gtc/matrix_transform.hpp>
 
 // C++ STL
-#include <array>
 #include <algorithm>
+#include <array>
 #include <iostream>
 #include <set>
 #include <stdexcept>
@@ -43,7 +43,7 @@ public:
     int         init(GLFWwindow * newWindow);
     bool        isWindowIconified();
     
-    void        updateModel(glm::mat4 newModel);
+    bool        updateModel(uint32_t modelId, glm::mat4 newModel);
 
     void        draw();
     void        cleanup();
@@ -57,12 +57,11 @@ private:
     std::vector<Mesh>               m_meshList;
 
     // Scene Settings
-    struct MVP
+    struct UboViewProjection
     {
         glm::mat4 projection;
         glm::mat4 view;
-        glm::mat4 model;
-    }                               m_mvp;                  // Model-View-Projection matrices. ⚠ Order is fundamental
+    }                               m_uboViewProjection;    // UniformBufferObject View-Projection matrices. ⚠ Reflect shader decl. order
 
     // Vulkan Components
     // - Main
@@ -88,8 +87,15 @@ private:
     VkDescriptorPool                m_descriptorPool;
     std::vector<VkDescriptorSet>    m_descriptorSets;
 
-    std::vector<VkBuffer>           m_uniformBuffer;
-    std::vector<VkDeviceMemory>     m_uniformBufferMemory;
+    std::vector<VkBuffer>           m_vpUniformBuffer;
+    std::vector<VkDeviceMemory>     m_vpUniformBufferMemory;
+
+    std::vector<VkBuffer>           m_modelDynUniformBuffer;
+    std::vector<VkDeviceMemory>     m_modelDynUniformBufferMemory;
+
+    VkDeviceSize                    m_minUniformBufferOffset;
+    size_t                          m_modelUniformAlignment;
+    UboModel *                      m_pModelTransferSpace;
 
     // - Pipeline
     VkPipeline                      m_graphicsPipeline;
@@ -127,13 +133,16 @@ private:
     void createDescriptorPool();
     void createDescriptorSets();
 
-    void updateUniformBuffer(uint32_t imageIndex);
+    void updateUniformBuffers(uint32_t imageIndex);
 
     // - Record Functions
     void recordCommands();
 
     // - Get Functions
     void getPhysicalDevice();
+
+    // - Allocate Functions
+    void allocateDynamicBufferTransferSpace();
 
     // - Support Functions
     // -- Checker Functions

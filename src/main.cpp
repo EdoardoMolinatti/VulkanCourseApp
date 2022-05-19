@@ -16,11 +16,11 @@ using std::cout, std::endl;
 #include "VulkanRenderer.h"
 #include "Utilities.h"
 
-using namespace Utilities;
-
 // Global variables
 GLFWwindow*     sg_pWindow = nullptr;
 VulkanRenderer  sg_vulkanRenderer;
+
+using namespace Utilities;
 
 // Constant expressions (like #define). Set them to 1 to test basic features on your system
 constexpr auto TEST_VULKAN_SDK  = 0;
@@ -171,7 +171,19 @@ int main()
                 angle -= 360.0f;
             }
 
-            sg_vulkanRenderer.updateModel(glm::rotate(glm::mat4(1.0f), glm::radians(angle), glm::vec3(0.0f, 0.0f, 1.0f)));
+            //sg_vulkanRenderer.updateModel( glm::rotate(glm::mat4(1.0f), glm::radians(angle), glm::vec3(0.0f, 0.0f, 1.0f)) );
+            //------------------------------------
+            glm::mat4 firstModel(1.0f);
+            glm::mat4 secondModel(1.0f);
+    
+            firstModel = glm::translate(firstModel, glm::vec3(-2.0f, 0.0f, -5.0f));
+            firstModel = glm::rotate(firstModel, glm::radians(angle), glm::vec3(0.0f, 0.0f, 1.0f));
+    
+            secondModel = glm::translate(secondModel, glm::vec3(2.0f, 0.0f, -5.0f));
+            secondModel = glm::rotate(secondModel, glm::radians(-angle * 10), glm::vec3(0.0f, 0.0f, 1.0f));
+    
+            sg_vulkanRenderer.updateModel(0, firstModel);
+            sg_vulkanRenderer.updateModel(1, secondModel);
             //----------------------------------------------------------------------
 
             try
