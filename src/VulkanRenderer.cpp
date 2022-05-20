@@ -52,27 +52,26 @@ int VulkanRenderer::init(GLFWwindow* newWindow)
         //               FOV-Y ,                                       Aspect Ratio                                        ,zNear, zFar
         m_uboViewProjection.view = glm::lookAt(glm::vec3(0.0f, 0.0f, 2.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
         //                                 Eye              ,           Center           ,           Up
-        //m_uboViewProjection.model = glm::mat4(1.0f);
 
-        m_uboViewProjection.projection[1][1] *= -1;   // Vulkan inverts Y coordinates compared to OpenGL (and GLM is based upon OpenGL coordinate system)
+        m_uboViewProjection.projection[1][1] *= -1; // Vulkan inverts Y coordinates compared to OpenGL (and GLM is based upon OpenGL coordinate system)
 
         //------------------------------
         // Create a mesh
         //------------------------------
         // Vertex Data
         std::vector<Vertex> meshVertices = {
-			{ { -0.4, 0.4, 0.0 },{ 1.0f, 0.0f, 0.0f } },	// 0
-			{ { -0.4, -0.4, 0.0 },{ 0.0f, 1.0f, 0.0f } },   // 1
-			{ { 0.4, -0.4, 0.0 },{ 0.0f, 0.0f, 1.0f } },    // 2
-			{ { 0.4, 0.4, 0.0 },{ 1.0f, 1.0f, 0.0f } },     // 3
-		};
+            { { -0.4,  0.4, 0.0 },{ 1.0f, 0.0f, 0.0f } },   // 0
+            { { -0.4, -0.4, 0.0 },{ 0.0f, 1.0f, 0.0f } },   // 1
+            { {  0.4, -0.4, 0.0 },{ 0.0f, 0.0f, 1.0f } },   // 2
+            { {  0.4,  0.4, 0.0 },{ 1.0f, 1.0f, 0.0f } },   // 3
+        };
 
-		std::vector<Vertex> meshVertices2 = {
-			{ { -0.25, 0.6, 0.0 },{ 1.0f, 0.0f, 0.0f } },	// 0
-			{ { -0.25, -0.6, 0.0 },{ 0.0f, 1.0f, 0.0f } },  // 1
-			{ { 0.25, -0.6, 0.0 },{ 0.0f, 0.0f, 1.0f } },   // 2
-			{ { 0.25, 0.6, 0.0 },{ 1.0f, 1.0f, 0.0f } },    // 3
-		};
+        std::vector<Vertex> meshVertices2 = {
+            { { -0.25,  0.6, 0.0 },{ 1.0f, 0.0f, 0.0f } },  // 0
+            { { -0.25, -0.6, 0.0 },{ 0.0f, 1.0f, 0.0f } },  // 1
+            { {  0.25, -0.6, 0.0 },{ 0.0f, 0.0f, 1.0f } },  // 2
+            { {  0.25,  0.6, 0.0 },{ 1.0f, 1.0f, 0.0f } },  // 3
+        };
 
         // Index Data
         std::vector<uint32_t> meshIndices = {
