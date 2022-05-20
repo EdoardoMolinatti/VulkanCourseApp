@@ -11,8 +11,8 @@
 using namespace Utilities;
 // Utilities::Vertex, Utilities::createBuffer, Utilities::copyBuffer;
 
-struct UboModel {
-    glm::mat4 model = glm::mat4(1.0f);
+struct Model {
+    glm::mat4 model;
 };
 
 class Mesh
@@ -23,7 +23,7 @@ public:
             VkQueue transferQueue, VkCommandPool transferCommandPool, 
             std::vector<Vertex> * vertices, std::vector<uint32_t> * indices);
 
-    UboModel    getModel();
+    Model       getModel();
     void        setModel(glm::mat4 newModel);
 
     uint32_t    getVertexCount();
@@ -37,7 +37,7 @@ public:
     ~Mesh();
 
 private:
-    UboModel            m_uboModel = {};
+    Model               m_model = {};
     
     uint32_t            m_vertexCount = 0U;
     VkBuffer            m_vertexBuffer = 0;             // '0' instead of 'nullptr' for compatibility with 32bit version
