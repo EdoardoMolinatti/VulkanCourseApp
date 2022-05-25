@@ -1,14 +1,11 @@
 #include "VulkanRenderer.h"
 
+// C++ STL
 #include <chrono>
 #include <thread>
 
 using std::cout;
 using std::endl;
-
-// Disable warning about Vulkan unscoped enums for this entire file
-#pragma warning( push )
-#pragma warning(disable : 26812) // The enum type * is unscoped. Prefer 'enum class' over 'enum'.
 
 ////////////
 // Public //
@@ -132,7 +129,7 @@ void VulkanRenderer::draw()
     // Check if the window is iconified
     if (glfwGetWindowAttrib(m_pWindow, GLFW_ICONIFIED))
     {
-        std::this_thread::sleep_for(std::chrono::milliseconds(16)); // 60fps => (1000 / 60 = 16.66667 ms)
+        std::this_thread::sleep_for(std::chrono::milliseconds(17)); // 60fps => (1000 / 60 = 16.66667 ms)
         return;
     }
 
@@ -1549,5 +1546,3 @@ VkShaderModule VulkanRenderer::createShaderModule(const std::vector<char>& code)
 
     return shaderModule;
 }
-
-#pragma warning( pop )

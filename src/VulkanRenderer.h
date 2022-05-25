@@ -1,16 +1,6 @@
 #ifndef VULKAN_RENDERER_H
 #define VULKAN_RENDERER_H
 
-// Main graphics libraries (Vulkan API, GLFW [Graphics Library FrameWork])
-#define GLFW_INCLUDE_VULKAN
-#include <GLFW/glfw3.h>
-
-// OpenGL Mathematics
-#define GLM_FORCE_RADIANS
-#define GLM_FORCE_DEPTH_ZERO_TO_ONE
-#include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
-
 // C++ STL
 #include <algorithm>
 #include <array>
@@ -21,17 +11,13 @@
 
 // Project includes
 #include "Mesh.h"
-#include "Utilities.h"
+#include "Utilities.h"          // Utilities header includes GLFW [Graphics Library FrameWork] + Vulkan API
 #include "VulkanValidation.h"
 
 using namespace Utilities;
 // Utilities::SwapchainImage,   Utilities::SwapchainDetails, Utilities::QueueFamilyIndices,
 // Utilities::MAX_FRAME_DRAWS,  Utilities::deviceExtensions, Utilities::createBuffer,
 // Utilities::getVersionString, Utilities::readBinaryFile;
-
-// Disable warning about Vulkan unscoped enums for this entire file
-#pragma warning( push )
-#pragma warning(disable : 26812) // The enum type * is unscoped. Prefer 'enum class' over 'enum'.
 
 class VulkanRenderer
 {
@@ -167,7 +153,5 @@ private:
     VkImageView                 createImageView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags);
     VkShaderModule              createShaderModule(const std::vector<char> &code);
 };
-
-#pragma warning( pop )
 
 #endif //VULKAN_RENDERER_H

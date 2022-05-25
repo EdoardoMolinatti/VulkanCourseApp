@@ -1,12 +1,11 @@
 #ifndef MESH_H
 #define MESH_H
 
-#define GLFW_INCLUDE_VULKAN
-#include <GLFW/glfw3.h>
-
+// C++ STL
 #include <vector>
 
-#include "Utilities.h"
+// Project includes
+#include "Utilities.h"          // Utilities header includes GLFW [Graphics Library FrameWork] + Vulkan API
 
 using namespace Utilities;
 // Utilities::Vertex, Utilities::createBuffer, Utilities::copyBuffer;

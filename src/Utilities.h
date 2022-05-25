@@ -1,7 +1,8 @@
 #ifndef UTILITIES_H
 #define UTILITIES_H
 
-// Defines for C++ ISO Standards        (https://en.wikipedia.org/wiki/C%2B%2B for a list of standards)
+//----------------------------------------------------------------------------------------------------------------------
+// Constants for C++ ISO Standards        (https://en.wikipedia.org/wiki/C%2B%2B for a list of standards)
 constexpr auto __cpp_1998 = 199711L;    // C++98
 constexpr auto __cpp_2003 = __cpp_1998; // C++03    (this was a TC - Technical Corrigendum of the standard, not a new release)
 constexpr auto __cpp_2011 = 201103L;    // C++11
@@ -14,14 +15,7 @@ constexpr auto __cpp_2020 = 202002L;    // C++20
 // "Project Properties" -> "C/C++" -> "Command Line" ("Additional Options" pane)
 // for All Configurations (Debug, Release, etc.) and all Architectures (x86, x64, etc.).
 // https://docs.microsoft.com/en-us/cpp/build/reference/zc-cplusplus?view=msvc-160
-
-// Disable warning about Vulkan unscoped enums for this entire file
-#pragma warning( push )
-#pragma warning(disable : 26812) // The enum type * is unscoped. Prefer 'enum class' over 'enum'.
-
-// GLFW + Vulkan
-#define GLFW_INCLUDE_VULKAN
-#include <GLFW/glfw3.h>
+//----------------------------------------------------------------------------------------------------------------------
 
 // C++ STL
 #include <iostream>
@@ -41,15 +35,28 @@ constexpr auto __cpp_2020 = 202002L;    // C++20
 #include <string>
 #include <vector>
 
-// GLM
-#include <glm/glm.hpp>
+// Disable warning about Vulkan unscoped enums for this entire file
+#pragma warning( push )
+#pragma warning(disable : 26812) // The enum type * is unscoped. Prefer 'enum class' over 'enum'.
 
+// Main graphics libraries (GLFW [Graphics Library FrameWork] + Vulkan API)
+#define GLFW_INCLUDE_VULKAN
+#include <GLFW/glfw3.h>
+
+// OpenGL Mathematics
+#define GLM_FORCE_RADIANS
+#define GLM_FORCE_DEPTH_ZERO_TO_ONE
+//#define GLM_FORCE_LEFT_HANDED
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+
+// Using directives
 using std::cout, std::endl;
 
-// Other constant expressions
+// Constant expressions
 constexpr uint32_t          WIN_DEFAULT_WIDTH = 1024;
 constexpr uint32_t          WIN_DEFAULT_HEIGHT = 768;
-#if __cplusplus >= __cpp_2017
+#if (__cplusplus >= __cpp_2017)
 #include <string_view>
 constexpr std::string_view  WIN_DEFAULT_TITLE = "Test Window";
 #else

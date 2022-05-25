@@ -10,8 +10,8 @@
 // C++ Boost
 #include <boost/algorithm/string.hpp>
 
-// Global used only for Validation Layers
-#ifdef NDEBUG // => #ifndef DEBUG (only NDEBUG preprocessor macro is standard)
+// Global used only to enable/disable Validation Layers
+#ifdef NDEBUG // == #ifndef DEBUG (but only NDEBUG preprocessor macro is standard)
 static const bool sg_validationEnabled = false; // Release
 #else
 static const bool sg_validationEnabled = true;  // Debug

@@ -1,8 +1,5 @@
 #include "Mesh.h"
 
-// Disable warning about Vulkan unscoped enums for this entire file
-#pragma warning( push )
-#pragma warning(disable : 26812) // The enum type * is unscoped. Prefer 'enum class' over 'enum'.
 
 Mesh::Mesh()
 {
@@ -129,5 +126,3 @@ void Mesh::createIndexBuffer(VkQueue transferQueue, VkCommandPool transferComman
     vkDestroyBuffer(m_device, stagingBuffer, nullptr);
     vkFreeMemory(m_device, stagingBufferMemory, nullptr);
 }
-
-#pragma warning( pop )
