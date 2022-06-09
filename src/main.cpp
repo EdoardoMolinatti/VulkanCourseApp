@@ -18,14 +18,20 @@ VulkanRenderer  sg_vulkanRenderer;
 
 using namespace Utilities;
 
-// Constant expressions (like #define). Set them to 1 to test basic features on your system
-constexpr auto TEST_VULKAN_SDK  = 0;
-constexpr auto TEST_GLM         = 0;
+// Constant expressions (like #define)
+constexpr auto DESIRED_FPS          = 60;       // Frames per second
+constexpr auto SLEEP_CORRECT_FACTOR = 0.8775;
+// Set the following to 1 to test the basic graphic libraries on your system
+constexpr auto TEST_VULKAN_SDK      = 0;
+constexpr auto TEST_GLM             = 0;
 
 
 // MAIN ------------------------------------------------------------------------
 int main()
 {
+    // Program Begin
+    std::chrono::steady_clock::time_point tBegin = std::chrono::steady_clock::now();
+
     // C++ compiler version check (it's in _MSVC_LANG if "/Zc:__cplusplus" isn't defined in the project)
     cout << "C++ Compiler version: " << __cplusplus << " [YYYYMM]";
     switch (__cplusplus)
@@ -134,34 +140,36 @@ int main()
 
     // 3D Model update variables
     float angle = 0.0f;
-    float deltaTime = 0.0f;
-    float lastTime = 0.0f;
-    // Frame number
+    double deltaTime = 0.0f;
+    double lastTime = 0.0f;
+    // Frame number and duration
     static unsigned long long frameNum = 0UL;
+    static double frameDuration = 1000.0 / DESIRED_FPS;
+
+    // We finished initialization, check the time
+    std::chrono::steady_clock::time_point tAfterInit = std::chrono::steady_clock::now();
 
     // Main loop until window closed
     while (!glfwWindowShouldClose(sg_pWindow))
     {
-        /* Poll for and process events */
+        // Start frame activities
+        double startFrame = glfwGetTime();
+        deltaTime = startFrame - lastTime;
+        lastTime = startFrame;
+
+        // Poll for and process events
         glfwPollEvents();
 
         if (sg_vulkanRenderer.isWindowIconified())
         {
-            // Update the last time we got in this loop for the next frame
-            lastTime = static_cast<float>(glfwGetTime());
-
-            // Just sleep for 1 frame time if the window is iconified
-            std::this_thread::sleep_for(std::chrono::milliseconds(17));
+            // Just sleep for 1 frame time (frameDuration) if the window is iconified
+            std::this_thread::sleep_for(std::chrono::milliseconds(static_cast<int32_t>(frameDuration)));
         }
         else
         {
             //----------------------------------------------------------------------
             /* Update the 3D Model */
-            float now = static_cast<float>(glfwGetTime());
-            deltaTime = now - lastTime;
-            lastTime = now;
-
-            angle += 10.0f * deltaTime;
+            angle += 10.0f * static_cast<float>(deltaTime);
             if (angle > 360.0f)
             {
                 angle -= 360.0f;
@@ -194,8 +202,19 @@ int main()
                 cout << "RUNTIME ERROR: " << e.what() << endl;
                 return EXIT_FAILURE;
             }
+
+            // Check draw frame time
+            double afterFrame = glfwGetTime();
+            double frameTime = (afterFrame - startFrame) * 1000.0; // glfwGetTime() returns seconds, convert it to milliseconds
+            auto sleepFor = static_cast<int32_t>((frameDuration - frameTime) * SLEEP_CORRECT_FACTOR);
+            if (sleepFor > 0)
+            {
+                std::this_thread::sleep_for(std::chrono::milliseconds(sleepFor));
+            }
         }
     }
+
+    std::chrono::steady_clock::time_point tBeforeCleanup = std::chrono::steady_clock::now();
 
     sg_vulkanRenderer.cleanup();
 
@@ -204,5 +223,20 @@ int main()
     glfwTerminate();
 
     cout << endl << "Program END.\nRendered " << frameNum << " frames." << endl;
+    // End time statistics
+    std::chrono::steady_clock::time_point tEnd = std::chrono::steady_clock::now();
+    std::cout << "Initialization time: "
+              << std::chrono::duration_cast<std::chrono::milliseconds>(tAfterInit - tBegin).count()
+              << "[ms]" << std::endl;
+    std::cout << "Cleanup time: "
+              << std::chrono::duration_cast<std::chrono::milliseconds>(tEnd - tBeforeCleanup).count()
+              << "[ms]" << std::endl;
+    std::cout << "Rendering loop time: "
+              << std::chrono::duration_cast<std::chrono::milliseconds>(tBeforeCleanup - tAfterInit).count()
+              << "[ms]" << std::endl;
+    std::cout << "Program execution time: "
+              << std::chrono::duration_cast<std::chrono::milliseconds>(tEnd - tBegin).count()
+              << "[ms]" << std::endl;
+
     return EXIT_SUCCESS;
 }
