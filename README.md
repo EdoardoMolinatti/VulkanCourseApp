@@ -41,6 +41,6 @@ You should verify to have defined the following environment variables
 
 - **VULKAN_SDK** - This should already exist (it should be created by the **Vulkan SDK** installer).<br />
   So you can just check that it's present under your **system** _environment variables_
-  (default: `VULKAN_SDK` => `C:\VulkanSDK\1.2.198.1`) and it points to the correct _path_.<br />
+  (default: `VULKAN_SDK` => `C:\VulkanSDK\1.3.216.0`) and it points to the correct _path_.<br />
   Please note that your VulkanSDK version might be more recent.<br />
   N.B.: note that the **path** _doesn't end_ with a backslash ("\\").<br />

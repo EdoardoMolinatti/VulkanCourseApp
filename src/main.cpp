@@ -20,7 +20,7 @@ using namespace Utilities;
 
 // Constant expressions (like #define)
 constexpr auto DESIRED_FPS          = 60;       // Frames per second
-constexpr auto SLEEP_CORRECT_FACTOR = 0.8775;
+constexpr auto SLEEP_CORRECT_FACTOR = 0.8775;   // Correction factor for the sleep (empiric)
 // Set the following to 1 to test the basic graphic libraries on your system
 constexpr auto TEST_VULKAN_SDK      = 0;
 constexpr auto TEST_GLM             = 0;
@@ -143,8 +143,8 @@ int main()
     double deltaTime = 0.0f;
     double lastTime = 0.0f;
     // Frame number and duration
-    static unsigned long long frameNum = 0UL;
-    static double frameDuration = 1000.0 / DESIRED_FPS;
+    static unsigned long long   frameNum        = 0UL;
+    static double               frameDuration   = 1000.0 / DESIRED_FPS; // [ms]
 
     // We finished initialization, check the time
     std::chrono::steady_clock::time_point tAfterInit = std::chrono::steady_clock::now();
