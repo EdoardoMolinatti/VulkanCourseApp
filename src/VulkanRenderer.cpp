@@ -42,6 +42,9 @@ int VulkanRenderer::init(GLFWwindow* newWindow)
         createCommandPool();
 
         //======================================================================
+        // Create texture
+        int firstTexture = createTexture("giraffe.jpg");
+
         //------------------------------
         // Model-View-Projection setup
         //------------------------------
@@ -199,6 +202,13 @@ void VulkanRenderer::cleanup()
 
     // Free the aligned memory used for Dynamic Uniform Buffers
     //_aligned_free(m_pModelTransferSpace);
+
+    // Destroy Textures (Image + Memory)
+    for (size_t i = 0; i < m_textureImages.size(); ++i)
+    {
+        vkDestroyImage(m_mainDevice.logicalDevice, m_textureImages[i], nullptr);
+        vkFreeMemory(m_mainDevice.logicalDevice, m_textureImageMemory[i], nullptr);
+    }
 
     // Destroy Depth Buffer ImageView, Image and related video memory
     vkDestroyImageView(m_mainDevice.logicalDevice, m_depthBufferImageView, nullptr);
@@ -1672,4 +1682,80 @@ VkShaderModule VulkanRenderer::createShaderModule(const std::vector<char>& code)
     }
 
     return shaderModule;
+}
+
+//------------------------------------------------------------------------------
+int VulkanRenderer::createTexture(std::string fileName)
+{
+    // Load image file
+    int width, height;
+    VkDeviceSize imageSize;
+    stbi_uc * imageData = loadTextureFile(fileName, &width, &height, &imageSize);
+
+    // Create staging buffer to hold loaded data, ready to copy to device
+    VkBuffer        imageStagingBuffer;
+    VkDeviceMemory  imageStagingBufferMemory;
+    createBuffer(m_mainDevice.physicalDevice, m_mainDevice.logicalDevice, imageSize,
+        VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
+        VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+        &imageStagingBuffer, &imageStagingBufferMemory);
+
+    // Copy image data to staging buffer
+    void *data;
+    vkMapMemory(m_mainDevice.logicalDevice, imageStagingBufferMemory, 0, imageSize, 0, &data);
+    memcpy(data, imageData, static_cast<size_t>(imageSize));
+    vkUnmapMemory(m_mainDevice.logicalDevice, imageStagingBufferMemory);
+
+    // Free original image data
+    stbi_image_free(imageData);
+
+    // Create the VkImage on the device to hold the final texture
+    VkImage texImage;
+    VkDeviceMemory texImageMemory;
+    texImage = createImage(width, height, VK_FORMAT_R8G8B8A8_UNORM, VK_IMAGE_TILING_OPTIMAL,
+        VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, &texImageMemory);
+
+    //--------------------------------------------
+    // COPY DATA TO IMAGE
+    // Transition image to be DST (DeSTination) for the copy operation
+    transitionImageLayout(m_mainDevice.logicalDevice, m_graphicsQueue, m_graphicsCommandPool, 
+        texImage, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
+
+    // Copy image data
+    copyImageBuffer(m_mainDevice.logicalDevice, m_graphicsQueue, m_graphicsCommandPool, imageStagingBuffer, texImage, width, height);
+
+    // Transition image to be shader readable for shader usage
+    transitionImageLayout(m_mainDevice.logicalDevice, m_graphicsQueue, m_graphicsCommandPool,
+        texImage, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+
+    // Add texture data to vector for reference
+    m_textureImages.push_back(texImage);
+    m_textureImageMemory.push_back(texImageMemory);
+
+    // Destroy staging buffers
+    vkDestroyBuffer(m_mainDevice.logicalDevice, imageStagingBuffer, nullptr);
+    vkFreeMemory(m_mainDevice.logicalDevice, imageStagingBufferMemory, nullptr);
+
+    // Return an index of the new texture image
+    return static_cast<int>(m_textureImages.size() - 1);
+}
+
+//------------------------------------------------------------------------------
+stbi_uc* VulkanRenderer::loadTextureFile(std::string fileName, int* width, int* height, VkDeviceSize* imageSize)
+{
+    // Number of channels image uses
+    int channels;
+
+    // Load pixel data for image
+    std::string fileLoc = "Textures/" + fileName;
+    stbi_uc * image = stbi_load(fileLoc.c_str(), width, height, &channels, STBI_rgb_alpha);
+    if (!image)
+    {
+        throw std::runtime_error("Failed to load a Texture file! ('Textures/" + fileName + "')");
+    }
+
+    // Calculate image size using given and known data
+    *imageSize = (*width) * (*height) * STBI_rgb_alpha;
+
+    return image;
 }

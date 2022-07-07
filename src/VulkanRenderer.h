@@ -9,6 +9,9 @@
 #include <stdexcept>
 #include <vector>
 
+// Stub Image (https://github.com/nothings/stb)
+#include "stb_image.h"
+
 // Project includes
 #include "Mesh.h"
 #include "Utilities.h"          // Utilities header includes GLFW [Graphics Library FrameWork] + Vulkan API
@@ -67,9 +70,9 @@ private:
     std::vector<VkFramebuffer>      m_swapChainFramebuffers;
     std::vector<VkCommandBuffer>    m_commandBuffers;
 
-	VkImage                         m_depthBufferImage;
-	VkDeviceMemory                  m_depthBufferImageMemory;
-	VkImageView                     m_depthBufferImageView;
+    VkImage                         m_depthBufferImage;
+    VkDeviceMemory                  m_depthBufferImageMemory;
+    VkImageView                     m_depthBufferImageView;
 
     // - Descriptors
     VkDescriptorSetLayout           m_descriptorSetLayout;
@@ -87,6 +90,10 @@ private:
     //VkDeviceSize                    m_minUniformBufferOffset;
     //size_t                          m_modelUniformAlignment;
     //Model *                         m_pModelTransferSpace;
+
+    // - Assets
+    std::vector<VkImage>            m_textureImages;
+    std::vector<VkDeviceMemory>     m_textureImageMemory;
 
     // - Pipeline
     VkPipeline                      m_graphicsPipeline;
@@ -116,7 +123,7 @@ private:
     void createDescriptorSetLayout();
     void createPushConstantRange();
     void createGraphicsPipeline();
-	void createDepthBufferImage();
+    void createDepthBufferImage();
     void createFramebuffers();
     void createCommandPool();
     void createCommandBuffers();
@@ -161,6 +168,11 @@ private:
                                             VkDeviceMemory *imageMemory);
     VkImageView                 createImageView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags);
     VkShaderModule              createShaderModule(const std::vector<char> &code);
+
+    int                         createTexture(std::string fileName);
+
+    // -- Loader Functions
+    stbi_uc *                   loadTextureFile(std::string fileName, int * width, int * height, VkDeviceSize * imageSize);
 };
 
 #endif //VULKAN_RENDERER_H

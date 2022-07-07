@@ -222,8 +222,8 @@ int main()
     glfwDestroyWindow(sg_pWindow);
     glfwTerminate();
 
-    cout << endl << "Program END.\nRendered " << frameNum << " frames." << endl;
     // End time statistics
+    cout << endl << "Program END.\nRendered " << frameNum << " frames." << endl;
     std::chrono::steady_clock::time_point tEnd = std::chrono::steady_clock::now();
     std::cout << "Initialization time: "
               << std::chrono::duration_cast<std::chrono::milliseconds>(tAfterInit - tBegin).count()
