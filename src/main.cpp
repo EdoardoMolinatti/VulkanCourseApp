@@ -139,9 +139,9 @@ int main()
     }
 
     // 3D Model update variables
-    float angle = 0.0f;
-    double deltaTime = 0.0f;
-    double lastTime = 0.0f;
+    float   angle       = 0.0f;
+    double  deltaTime   = 0.0;
+    double  lastTime    = 0.0;
     // Frame number and duration
     static unsigned long long   frameNum        = 0UL;
     static double               frameDuration   = 1000.0 / DESIRED_FPS; // [ms]
@@ -180,10 +180,10 @@ int main()
             glm::mat4 firstModel(1.0f);
             glm::mat4 secondModel(1.0f);
     
-            firstModel = glm::translate(firstModel, glm::vec3(0.0f, 0.0f, -2.5f));
+            firstModel = glm::translate(firstModel, glm::vec3(-1.0f, 0.0f, -2.5f));
             firstModel = glm::rotate(firstModel, glm::radians(angle), glm::vec3(0.0f, 0.0f, 1.0f));
     
-            secondModel = glm::translate(secondModel, glm::vec3(0.0f, 0.0f, -3.0f));
+            secondModel = glm::translate(secondModel, glm::vec3(1.0f, 0.0f, -3.0f));
             secondModel = glm::rotate(secondModel, glm::radians(-angle * 10), glm::vec3(0.0f, 0.0f, 1.0f));
     
             sg_vulkanRenderer.updateModel(0, firstModel);

@@ -144,6 +144,7 @@ namespace Utilities
     {
         glm::vec3 pos; // Vertex Position (x, y, z)
         glm::vec3 col; // Vertex Colour (r, g, b)
+        glm::vec2 tex; // Texture Coordinates (u, v)
     };
 
     // Indices (locations) of Queue Families (if they exist at all)
