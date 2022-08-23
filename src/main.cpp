@@ -206,7 +206,7 @@ int main()
             // Check draw frame time
             double afterFrame = glfwGetTime();
             double frameTime = (afterFrame - startFrame) * 1000.0; // glfwGetTime() returns seconds, convert it to milliseconds
-            auto sleepFor = static_cast<int32_t>((frameDuration - frameTime) * SLEEP_CORRECT_FACTOR);
+            int32_t sleepFor = static_cast<int32_t>((frameDuration - frameTime) * SLEEP_CORRECT_FACTOR);
             if (sleepFor > 0)
             {
                 std::this_thread::sleep_for(std::chrono::milliseconds(sleepFor));
@@ -234,7 +234,7 @@ int main()
     std::cout << "Rendering loop time: "
               << std::chrono::duration_cast<std::chrono::milliseconds>(tBeforeCleanup - tAfterInit).count()
               << "[ms]" << std::endl;
-    std::cout << "Program execution time: "
+    std::cout << "Total execution time: "
               << std::chrono::duration_cast<std::chrono::milliseconds>(tEnd - tBegin).count()
               << "[ms]" << std::endl;
 

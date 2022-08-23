@@ -65,17 +65,17 @@ int VulkanRenderer::init(GLFWwindow* newWindow)
         //------------------------------
         // Vertex Data
         std::vector<Vertex> meshVertices1 = {
-            { { -0.4,  0.4, 0.0 }, { 1.0f, 0.0f, 0.0f }, {0.0f, 0.0f} },   // 0
-            { { -0.4, -0.4, 0.0 }, { 1.0f, 0.0f, 0.0f }, {0.0f, 1.0f} },   // 1
-            { {  0.4, -0.4, 0.0 }, { 1.0f, 0.0f, 0.0f }, {1.0f, 1.0f} },   // 2
-            { {  0.4,  0.4, 0.0 }, { 1.0f, 0.0f, 0.0f }, {1.0f, 0.0f} },   // 3
+            { { -0.4,  0.4, 0.0 }, { 1.0f, 0.0f, 0.0f }, {0.0f, 0.0f} },    // 0
+            { { -0.4, -0.4, 0.0 }, { 1.0f, 0.0f, 0.0f }, {0.0f, 1.0f} },    // 1
+            { {  0.4, -0.4, 0.0 }, { 1.0f, 0.0f, 0.0f }, {1.0f, 1.0f} },    // 2
+            { {  0.4,  0.4, 0.0 }, { 1.0f, 0.0f, 0.0f }, {1.0f, 0.0f} },    // 3
         };
 
         std::vector<Vertex> meshVertices2 = {
-            { { -0.5,  0.6, 0.0 }, { 0.0f, 0.0f, 1.0f }, {0.0f, 0.0f} },  // 0
-            { { -0.5, -0.6, 0.0 }, { 0.0f, 0.0f, 1.0f }, {0.0f, 1.0f} },  // 1
-            { {  0.5, -0.6, 0.0 }, { 0.0f, 0.0f, 1.0f }, {1.0f, 1.0f} },  // 2
-            { {  0.5,  0.6, 0.0 }, { 0.0f, 0.0f, 1.0f }, {1.0f, 0.0f} },  // 3
+            { { -0.57,  0.6, 0.0 }, { 0.0f, 0.0f, 1.0f }, {0.0f, 0.0f} },    // 0
+            { { -0.57, -0.6, 0.0 }, { 0.0f, 0.0f, 1.0f }, {0.0f, 1.0f} },    // 1
+            { {  0.57, -0.6, 0.0 }, { 0.0f, 0.0f, 1.0f }, {1.0f, 1.0f} },    // 2
+            { {  0.57,  0.6, 0.0 }, { 0.0f, 0.0f, 1.0f }, {1.0f, 0.0f} },    // 3
         };
 
         // Index Data
@@ -119,11 +119,11 @@ bool VulkanRenderer::isWindowIconified()
     return false;
 }
 //------------------------------------------------------------------------------
-bool VulkanRenderer::updateModel(uint32_t modelId, glm::mat4 newModel)
+bool VulkanRenderer::updateModel(uint32_t modelId, glm::mat4 modelMatrix)
 {
-    if (modelId >= m_meshList.size()) return false;
+    if (modelId >= m_meshList.size()) { return false; }
 
-    m_meshList[modelId].setModel(newModel);
+    m_meshList[modelId].setModel(modelMatrix);
     return true;
 }
 //------------------------------------------------------------------------------

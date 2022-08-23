@@ -32,7 +32,7 @@ public:
     int         init(GLFWwindow * newWindow);
     bool        isWindowIconified();
     
-    bool        updateModel(uint32_t modelId, glm::mat4 newModel);
+    bool        updateModel(uint32_t modelId, glm::mat4 modelMatrix);
 
     void        draw();
     void        cleanup();
