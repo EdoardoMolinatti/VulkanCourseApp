@@ -127,12 +127,12 @@ bool VulkanRenderer::updateModel(uint32_t modelId, glm::mat4 modelMatrix)
     return true;
 }
 //------------------------------------------------------------------------------
-void VulkanRenderer::draw()
+void VulkanRenderer::draw(double frameDuration)
 {
     // Check if the window is iconified
     if (glfwGetWindowAttrib(m_pWindow, GLFW_ICONIFIED))
     {
-        std::this_thread::sleep_for(std::chrono::milliseconds(17)); // 60fps => (1000 / 60 = 16.66667 ms)
+        std::this_thread::sleep_for(std::chrono::milliseconds(static_cast<long long>(frameDuration)));
         return;
     }
 
@@ -1215,7 +1215,7 @@ void VulkanRenderer::recordCommands(uint32_t currentImageIdx)
         //{ 0.6f, 0.65f, 0.4f, 1.0f }       // Light olive green
         //{ 1.0f, 0.86, 0.72f, 1.0f }       // Light orange
         //{ 0.92f, 0.56, 0.24f, 1.0f }      // Orange
-        std::array<VkClearValue, 2> clearValues = {};                       // Clear Colors
+        std::array<VkClearValue, 2> clearValues = {};                       // Clear Color values
         clearValues[0].color = { 0.37f, 0.43f, 0.22f, 1.0f };               // Color clear RGBA (Red, Green, Blue, Alpha)
         clearValues[1].depthStencil.depth = 1.0f;                           // Depth clear value (1.0f is the farthest from camera)
     renderPassBeginInfo.pClearValues = clearValues.data();                  // Array of clear values

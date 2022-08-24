@@ -34,7 +34,7 @@ public:
     
     bool        updateModel(uint32_t modelId, glm::mat4 modelMatrix);
 
-    void        draw();
+    void        draw(double frameDuration = 16.66666666667); // 60 fps => (1000.0 / 60.0 = 16.66667 ms)
     void        cleanup();
 
 private:

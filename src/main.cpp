@@ -193,7 +193,7 @@ int main()
             try
             {
                 /* Vulkan Draw current frame */
-                sg_vulkanRenderer.draw();
+                sg_vulkanRenderer.draw(frameDuration);
 
                 ++frameNum;
             }
