@@ -1,5 +1,6 @@
 // C++ STL
 #include <chrono>
+#include <iomanip>
 #include <iostream>
 #include <stdexcept>
 #include <string>
@@ -20,7 +21,7 @@ using namespace Utilities;
 
 // Constant expressions (like #define)
 constexpr auto DESIRED_FPS          = 60;       // Frames per second
-constexpr auto SLEEP_CORRECT_FACTOR = 0.8775;   // Correction factor for the sleep (empiric)
+constexpr auto SLEEP_CORRECT_FACTOR = 0.8775;   // Correction factor for the sleep (empiric, not clear why it's needed)
 // Set the following to 1 to test the basic graphic libraries on your system
 constexpr auto TEST_VULKAN_SDK      = 0;
 constexpr auto TEST_GLM             = 0;
@@ -71,6 +72,7 @@ int main()
         uint32_t extensionsCount = 0;
         VkResult vkRes = VkResult::VK_SUCCESS;
         vkRes = vkEnumerateInstanceExtensionProperties(nullptr, &extensionsCount, nullptr);
+        cout << "-- Test Vulkan --" << endl;
         cout << "Vulkan Extensions number: " << extensionsCount << endl;
         if (extensionsCount > 0)
         {
@@ -105,13 +107,13 @@ int main()
 
         char buffer[128] = {};
         sprintf_s(buffer, sizeof(buffer), "(%0.2f, %0.2f, %0.2f, %0.2f)", testResult.x, testResult.y, testResult.z, testResult.w);
-        cout    << "- Test GLM -" //<< " - Result Type: " << typeid(testResult).name() << ", Result elements type: " << typeid(testResult.w).name()
+        cout    << "-- Test GLM --" //<< " - Result Type: " << typeid(testResult).name() << ", Result elements type: " << typeid(testResult.w).name()
                 << "\nglm::mat4 * glm::vec4 == " << buffer
                 << endl << endl;
         if (testVector != testResult)
         {
-            cout << "Please install the GLM library (OpenGL Mathematics) on your system." << endl;
-            // $(SolutionDir)../Libraries/GLM/
+            cout << "Please install the GLM library (OpenGL Mathematics) on your system (it should be included with the Vulkan SDK install)." << endl;
+            // $(VULKAN_SDK)/Include/glm
             return EXIT_FAILURE;
         }
     }
@@ -223,8 +225,8 @@ int main()
     glfwTerminate();
 
     // End time statistics
-    cout << endl << "Program END.\nRendered " << frameNum << " frames." << endl;
     std::chrono::steady_clock::time_point tEnd = std::chrono::steady_clock::now();
+    cout << endl << "Program END.\nRendered " << frameNum << " frames." << endl;
     std::cout << "Initialization time: "
               << std::chrono::duration_cast<std::chrono::milliseconds>(tAfterInit - tBegin).count()
               << "[ms]" << std::endl;
@@ -237,6 +239,9 @@ int main()
     std::cout << "Total execution time: "
               << std::chrono::duration_cast<std::chrono::milliseconds>(tEnd - tBegin).count()
               << "[ms]" << std::endl;
+    std::cout << std::endl << "Medium frame time: " << std::setprecision(8)
+              << (std::chrono::duration_cast<std::chrono::milliseconds>(tBeforeCleanup - tAfterInit).count() / static_cast<double>(frameNum))
+              << "[ms]   (Rendering loop time / Rendered frames)" << std::endl;
 
     return EXIT_SUCCESS;
 }
