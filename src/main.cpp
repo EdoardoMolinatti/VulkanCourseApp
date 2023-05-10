@@ -20,8 +20,8 @@ VulkanRenderer  sg_vulkanRenderer;
 using namespace Utilities;
 
 // Constant expressions (like #define)
-constexpr auto DESIRED_FPS          = 60;       // Frames per second
-constexpr auto SLEEP_CORRECT_FACTOR = 0.8775;   // Correction factor for the sleep (empiric, not clear why it's needed)
+constexpr auto DESIRED_FPS          = 60;   // Frames per second
+constexpr auto FPS_FACTOR           = 2.0;  // Correction factor for the sleep (empiric, not clear why it's needed)
 // Set the following to 1 to test the basic graphic libraries on your system
 constexpr auto TEST_VULKAN_SDK      = 0;
 constexpr auto TEST_GLM             = 0;
@@ -145,8 +145,8 @@ int main()
     double  deltaTime   = 0.0;
     double  lastTime    = 0.0;
     // Frame number and duration
-    static unsigned long long   frameNum        = 0UL;
-    static double               frameDuration   = 1000.0 / DESIRED_FPS; // [ms]
+    static unsigned long long   frameNum        = 0ULL;
+    static double               frameDuration   = 1000.0 / (DESIRED_FPS * FPS_FACTOR); // [ms]
 
     // We finished initialization, check the time
     std::chrono::steady_clock::time_point tAfterInit = std::chrono::steady_clock::now();
@@ -155,11 +155,12 @@ int main()
     while (!glfwWindowShouldClose(sg_pWindow))
     {
         // Start frame activities
+        auto tStartFrame = std::chrono::steady_clock::now();
         double startFrame = glfwGetTime();
         deltaTime = startFrame - lastTime;
         lastTime = startFrame;
 
-        // Poll for and process events
+        // Poll and process events
         glfwPollEvents();
 
         if (sg_vulkanRenderer.isWindowIconified())
@@ -169,7 +170,7 @@ int main()
         }
         else
         {
-            //----------------------------------------------------------------------
+            //------------------------------------------------------------------
             /* Update the 3D Model */
             angle += 10.0f * static_cast<float>(deltaTime);
             if (angle > 360.0f)
@@ -190,7 +191,7 @@ int main()
     
             sg_vulkanRenderer.updateModel(0, firstModel);
             sg_vulkanRenderer.updateModel(1, secondModel);
-            //----------------------------------------------------------------------
+            //------------------------------------------------------------------
 
             try
             {
@@ -206,9 +207,9 @@ int main()
             }
 
             // Check draw frame time
-            double afterFrame = glfwGetTime();
-            double frameTime = (afterFrame - startFrame) * 1000.0; // glfwGetTime() returns seconds, convert it to milliseconds
-            int32_t sleepFor = static_cast<int32_t>((frameDuration - frameTime) * SLEEP_CORRECT_FACTOR);
+            auto tEndFrame = std::chrono::steady_clock::now();
+            auto frameTime = std::chrono::duration_cast<std::chrono::milliseconds>(tEndFrame - tStartFrame).count();
+            int32_t sleepFor = static_cast<int32_t>( std::floor(frameDuration - frameTime) );
             if (sleepFor > 0)
             {
                 std::this_thread::sleep_for(std::chrono::milliseconds(sleepFor));

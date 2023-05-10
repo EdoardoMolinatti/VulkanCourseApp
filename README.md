@@ -18,7 +18,7 @@ on [Udemy](https://www.udemy.com/).
 \* That folder must be inside the main project folder, and it shall be called "**Libraries**".<br />
 &nbsp;&nbsp;&nbsp;It will be searched with this relative _path_ (in VS project properties): "`$(SolutionDir)/Libraries/`"
 
-> **NOTE:**  The project uses also the [GLM](https://github.com/g-truc/glm) library, but it takes it from the Vulkan SDK installation path (in "`$(VULKAN_SDK)/Include/glm`").
+> **NOTE:**  The project uses also the [GLM](https://github.com/g-truc/glm) library, but it takes it from the Vulkan SDK installation path (in "`$(VK_SDK_PATH)/Include/glm`").
 
 <br />
 
@@ -39,11 +39,11 @@ _output: `symbolic link created for GLFW <<===>> glfw-3.3.8.bin.WIN64`_<br /><br
 
 ## Environment Variables
 
-You should verify to have defined the following environment variables
+You should verify to have defined the following environment variable
 (you can help yourself by installing [Rapid Environment Editor](https://www.rapidee.com/)):
 
-- **VULKAN_SDK** - This should already exist (it should be created by the **Vulkan SDK** installer).<br />
+- **VK_SDK_PATH** - This should already exist (it should be created by the **Vulkan SDK** installer).<br />
   So you can just check that it's present under your **system** _environment variables_
-  (default: `VULKAN_SDK` => `C:\VulkanSDK\1.3.224.0`) and it points to the correct _path_.<br />
+  (default: `VK_SDK_PATH` => `C:\VulkanSDK\1.3.246.0`) and it points to the correct _path_.<br />
   Please note that your VulkanSDK version might be more recent.<br />
-  N.B.: note that the `VULKAN_SDK` **path** _doesn't end_ with a backslash ("\\").<br />
+  N.B.: note that the `VK_SDK_PATH` **path** _doesn't end_ with a backslash ("\\").<br />

@@ -18,7 +18,7 @@ static const bool sg_validationEnabled = true;  // Debug
 #endif
 
 
-// VK_LAYER_KHRONOS_validation = All standard validation layers (Khronos Group)
+// VK_LAYER_KHRONOS_validation => All standard validation layers (Khronos Group)
 const std::vector<const char*> g_validationLayers = {
     "VK_LAYER_KHRONOS_validation"
 };
