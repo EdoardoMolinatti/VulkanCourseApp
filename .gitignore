@@ -47,5 +47,8 @@ Release/**
 Libraries/**
 **/Libraries
 
+# Application output folder
+VulkanCourseApp/**
+
 # Compiled Shaders (SPIR-V) https://www.khronos.org/api/spir
 **/*.spv

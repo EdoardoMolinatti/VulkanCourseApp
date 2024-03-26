@@ -34,13 +34,13 @@ public:
     
     bool        updateModel(uint32_t modelId, glm::mat4 modelMatrix);
 
-    void        draw(double frameDuration = 16.66666666667); // 60 fps => (1000.0 / 60.0 = 16.66667 ms)
+    void        draw(double frameDuration = 16.66666666667);    // 60 fps => (1000.0 / 60.0 = 16.66667 ms)
     void        cleanup();
 
 private:
     // GLFW Components
     GLFWwindow *                    m_pWindow = nullptr;
-    uint8_t                         m_currentFrame = 0U;    // Index of current frame. For Triple Buffer it'll be in {0, 1, 2}
+    uint8_t                         m_currentFrame = 0U;        // Index of current frame. For Triple Buffer it'll be in {0, 1, 2}
 
     // Scene Objects
     std::vector<Mesh>               m_meshList;
@@ -50,7 +50,8 @@ private:
     {
         glm::mat4 projection;
         glm::mat4 view;
-    }                               m_uboViewProjection;    // UniformBufferObject View-Projection matrices. ⚠ Reflect shader decl. order
+    }                               m_uboViewProjection = {};   // UniformBufferObject View-Projection matrices.
+                                                                // ⚠ Reflects the shader declaration order
 
     // Vulkan Components
     // - Main
@@ -70,19 +71,19 @@ private:
     std::vector<VkFramebuffer>      m_swapChainFramebuffers;
     std::vector<VkCommandBuffer>    m_commandBuffers;
 
-    VkImage                         m_depthBufferImage;
-    VkDeviceMemory                  m_depthBufferImageMemory;
-    VkImageView                     m_depthBufferImageView;
+    VkImage                         m_depthBufferImage = 0;
+    VkDeviceMemory                  m_depthBufferImageMemory = 0;
+    VkImageView                     m_depthBufferImageView = 0;
 
-    VkSampler                       m_textureSampler;
+    VkSampler                       m_textureSampler = 0;
 
     // - Descriptors
-    VkDescriptorSetLayout           m_descriptorSetLayout;
-    VkDescriptorSetLayout           m_samplerSetLayout;
-    VkPushConstantRange             m_pushConstantRange;
+    VkDescriptorSetLayout           m_descriptorSetLayout = 0;
+    VkDescriptorSetLayout           m_samplerSetLayout = 0;
+    VkPushConstantRange             m_pushConstantRange = {};
 
-    VkDescriptorPool                m_descriptorPool;
-    VkDescriptorPool                m_samplerDescriptorPool;
+    VkDescriptorPool                m_descriptorPool = 0;
+    VkDescriptorPool                m_samplerDescriptorPool = 0;
     std::vector<VkDescriptorSet>    m_descriptorSets;
     std::vector<VkDescriptorSet>    m_samplerDescriptorSets;
 
@@ -102,12 +103,12 @@ private:
     std::vector<VkImageView>        m_textureImageViews;
 
     // - Pipeline
-    VkPipeline                      m_graphicsPipeline;
-    VkPipelineLayout                m_pipelineLayout;
-    VkRenderPass                    m_renderPass;
+    VkPipeline                      m_graphicsPipeline = 0;
+    VkPipelineLayout                m_pipelineLayout = 0;
+    VkRenderPass                    m_renderPass = 0;
 
     // - Pools
-    VkCommandPool                   m_graphicsCommandPool;
+    VkCommandPool                   m_graphicsCommandPool = 0;
 
     // - Utility
     VkFormat                        m_swapChainImageFormat = VK_FORMAT_UNDEFINED;

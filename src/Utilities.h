@@ -2,14 +2,15 @@
 #define UTILITIES_H
 
 //----------------------------------------------------------------------------------------------------------------------
-// Constants for C++ ISO Standards        (https://en.wikipedia.org/wiki/C%2B%2B for a list of standards)
-constexpr auto __cpp_1998 = 199711L;    // C++98
-constexpr auto __cpp_2003 = __cpp_1998; // C++03    (this was a TC - Technical Corrigendum of the standard, not a new release)
-constexpr auto __cpp_2011 = 201103L;    // C++11
-constexpr auto __cpp_2014 = 201402L;    // C++14
-constexpr auto __cpp_2017 = 201703L;    // C++17
-constexpr auto __cpp_2020 = 202002L;    // C++20
-//constexpr auto __cpp_2023 = 202303L;    // C++23
+// Constants for C++ ISO Standards   (https://en.wikipedia.org/wiki/C%2B%2B for a list of standards)
+#define __cpp_1998 199711L      // C++98
+#define __cpp_2003 __cpp_1998   // C++03  (this was a TC - Technical Corrigendum of the standard, not a new release)
+#define __cpp_2011 201103L      // C++11
+#define __cpp_2014 201402L      // C++14
+#define __cpp_2017 201703L      // C++17
+#define __cpp_2020 202002L      // C++20
+#define __cpp_2023 202302L      // C++23
+//#define __cpp_2026 202603L      // C++26
 // https://stackoverflow.com/questions/11053960/how-are-the-cplusplus-directive-defined-in-various-compilers#answer-11054055
 // ⚠ Important Note: VisualStudio needs the string "/Zc:__cplusplus" to be defined in
 // "Project Properties" -> "C/C++" -> "Command Line" ("Additional Options" pane)
@@ -30,7 +31,7 @@ constexpr auto __cpp_2020 = 202002L;    // C++20
         #include <unistd.h>
         #define GetCurrentDir getcwd
     #endif
-    #include <stdio.h>
+    #include <cstdio>
 #endif
 #include <string>
 #include <vector>
@@ -40,10 +41,10 @@ constexpr auto __cpp_2020 = 202002L;    // C++20
 
 // Disable warning about Vulkan unscoped enums for this entire file
 #pragma warning( push )
-#pragma warning(disable : 26812) // The enum type * is unscoped. Prefer 'enum class' over 'enum'.
+#pragma warning(disable : 26812)    // The enum type * is unscoped. Prefer 'enum class' over 'enum'.
 
-// Main graphics libraries (GLFW [Graphics Library FrameWork] + Vulkan API)
-#define GLFW_INCLUDE_VULKAN
+// Main graphics libraries (GLFW [Graphics Library FrameWork] + Vulkan APIs)
+#define GLFW_INCLUDE_VULKAN         // This define tells GLFW to include the Vulkan header
 #include <GLFW/glfw3.h>
 
 // OpenGL Mathematics
@@ -83,7 +84,7 @@ namespace Utilities
     // https://www.glfw.org/docs/3.3/window_guide.html#window_iconify
     static void glfwIconifiedWindowCbk(GLFWwindow* window, int iconified)
     {
-        cout << "Window has been " << (iconified ? "iconified." : "restored.") << endl;
+        cout << "Window has been " << (iconified ? "minimized." : "restored.") << endl;
     }
 
     // Callback to manage GLFW errors

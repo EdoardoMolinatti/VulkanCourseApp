@@ -27,15 +27,15 @@ instead of renaming the main folders of the downloaded libraries.
 The important thing is that the _symbolic link names_ remain the same (**GLFW**, **GLFW32**) directly under
 the "**Libraries**" folder.  
 Of course each of them must point to the root folder of the corrresponding extracted library
-(e.g. "GLFW" => "glfw-3.3.8.bin.WIN64").  
+(e.g. "GLFW" => "glfw-3.4.bin.WIN64").  
 Example about creating a symbolic link with [**`mklink`**](https://ss64.com/nt/mklink.html) (be sure to open a shell
 with [**Administrator** privileges](https://allthings.how/how-to-open-windows-terminal-as-admin-on-windows-11/)):
 
 ```cmd
-[...]\Libraries> mklink /D GLFW glfw-3.3.8.bin.WIN64
+[...]\Libraries> mklink /D GLFW glfw-3.4.bin.WIN64
 ```
 
-_output: `symbolic link created for GLFW <<===>> glfw-3.3.8.bin.WIN64`_  
+_output: `symbolic link created for GLFW <<===>> glfw-3.4.bin.WIN64`_  
 
 ## Environment Variables
 

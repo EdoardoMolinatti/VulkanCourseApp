@@ -107,7 +107,7 @@ public:
         if (messageSeverity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT)
         {
             std::vector<std::string> tokens;
-            boost::split(tokens, message, [](char sep) { return sep == '|'; });
+            boost::split(tokens, message, [](char sep) { return (sep == '|'); });
 
             std::cerr << std::endl << "Message ID Name: '" << messageIdName << "'" << std::endl;
             if (tokens.size() == 3)
@@ -123,7 +123,7 @@ public:
         else if (messageSeverity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT)
         {
             std::vector<std::string> tokens;
-            boost::split(tokens, message, [](char sep) { return sep == '|'; });
+            boost::split(tokens, message, [](char sep) { return (sep == '|'); });
 
             std::cerr << std::endl << "Message ID Name: '" << messageIdName << "'" << std::endl;
             if (tokens.size() == 3)

@@ -53,8 +53,11 @@ int main()
     case __cpp_2020:
         cout << " (C++20)" << std::endl;
         break;
-    //case __cpp_2023:
-    //    cout << " (C++23)" << std::endl;
+    case __cpp_2023:
+        cout << " (C++23)" << std::endl;
+        break;
+    //case __cpp_2026:
+    //    cout << " (C++26)" << std::endl;
     //    break;
     default:
         cout << " (C++??)" << std::endl;
@@ -234,15 +237,17 @@ int main()
     std::cout << "Cleanup time: "
               << std::chrono::duration_cast<std::chrono::milliseconds>(tEnd - tBeforeCleanup).count()
               << "[ms]" << std::endl;
-    std::cout << "Rendering loop time: "
-              << std::chrono::duration_cast<std::chrono::milliseconds>(tBeforeCleanup - tAfterInit).count()
-              << "[ms]" << std::endl;
+    auto renderingLoopTime = std::chrono::duration_cast<std::chrono::milliseconds>(tBeforeCleanup - tAfterInit).count();
+    std::cout << "Rendering loop time: " << renderingLoopTime << "[ms]" << std::endl;
     std::cout << "Total execution time: "
               << std::chrono::duration_cast<std::chrono::milliseconds>(tEnd - tBegin).count()
               << "[ms]" << std::endl;
-    std::cout << std::endl << "Medium frame time: " << std::setprecision(8)
-              << (std::chrono::duration_cast<std::chrono::milliseconds>(tBeforeCleanup - tAfterInit).count() / static_cast<double>(frameNum))
+    double avgFrameTime = (static_cast<double>(renderingLoopTime) / static_cast<double>(frameNum));
+    std::cout << std::endl << "Average frame time: " << std::setprecision(8)
+              << avgFrameTime
               << "[ms]   (Rendering loop time / Rendered frames)" << std::endl;
+    std::cout << std::endl << "Average frames per second (FPS): "
+              << std::round(1000.0 / avgFrameTime) << std::endl;
 
     return EXIT_SUCCESS;
 }

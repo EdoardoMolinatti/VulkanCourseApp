@@ -132,7 +132,7 @@ void VulkanRenderer::draw(double frameDuration)
     // Check if the window is iconified
     if (glfwGetWindowAttrib(m_pWindow, GLFW_ICONIFIED))
     {
-        std::this_thread::sleep_for(std::chrono::milliseconds(static_cast<long long>(frameDuration)));
+        std::this_thread::sleep_for(std::chrono::milliseconds(static_cast<uint32_t>(frameDuration)));
         return;
     }
 
